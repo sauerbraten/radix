@@ -55,9 +55,9 @@ func (node *Node) insert(foo string) {
 		child.insert(foo[x:])
 		return
 	}
-	// create new child node to replace current child, but don't make it an end node
+	// create new child node to replace current child, keep the .isEnd value from current child
 	//fmt.Printf("creating new node '%v' after '%v'...\n", foo[:x], node.chars)
-	newChild := &Node{nil, foo[:x], false}
+	newChild := &Node{nil, foo[:x], child.isEnd}
 	
 	// shorten old chars to the non-shared part
 	//fmt.Printf("shortening old node '%v' to '%v'...\n", child.chars, child.chars[x:])
