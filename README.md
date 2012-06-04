@@ -5,9 +5,11 @@ An implementation of the [radix trie data structure](http://en.wikipedia.org/wik
 ## Usage
 
 Get the package:
-  $ go get github.com/sauerbraten/radixtrie
+
+	$ go get github.com/sauerbraten/radixtrie
 
 Import the package:
+
 	import (
 		"github.com/sauerbraten/radixtrie"
 	)
