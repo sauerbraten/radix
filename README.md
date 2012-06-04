@@ -51,3 +51,22 @@ Import the package:
 		fmt.Printf("'c' is contained: %v\n", trie.Find("c"))
 		fmt.Printf("'abd' is contained: %v\n", trie.Find("abd"))
 	}
+
+This example should print the following:
+
+	Trie after inserting and before deleting
+	''  end: false
+		'a'  end: true
+			'b'  end: false
+				'c'  end: true
+				'd'  end: true
+		'b'  end: true
+	Trie after deleting
+	''  end: false
+		'a'  end: true
+			'b'  end: false
+				'c'  end: true
+				'd'  end: true
+	'a' is contained: true
+	'c' is contained: false
+	'abd' is contained: true
