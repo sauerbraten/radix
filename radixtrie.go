@@ -8,49 +8,49 @@ type RadixTrie struct {
 	// children maps the first letter of each child to the child itself, e.g. "a" -> "ab", "x" -> "xyz", "y" -> "yza", ...
 	children map[byte]*RadixTrie
 	chars    string
-	isEnd    bool
+	value    interface{}
 }
 
-func getLongestCommonPrefix(foo, bar string) (string, int) {
+func getLongestCommonPrefix(key, bar string) (string, int) {
 	x := 0
-	for foo[x] == bar[x] {
+	for key[x] == bar[x] {
 		x = x + 1
-		if x == len(foo) || x == len(bar) {
+		if x == len(key) || x == len(bar) {
 			break
 		}
 	}
-	return foo[:x], x // == bar[:x]
+	return key[:x], x // == bar[:x]
 }
 
-func (node *RadixTrie) Insert(foo string) {
-	// look up the child starting with the same letter as foo
+func (node *RadixTrie) Insert(key string, value interface{}) {
+	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, insert a new one
-	child, ok := node.children[foo[0]]
+	child, ok := node.children[key[0]]
 	if !ok {
-		newChild := &RadixTrie{make(map[byte]*RadixTrie), foo, true}
-		node.children[foo[0]] = newChild
+		newChild := &RadixTrie{make(map[byte]*RadixTrie), key, value}
+		node.children[key[0]] = newChild
 		return
 	}
 
-	// if foo == child.chars, don't have to create a new child, but only have to set the current child's .isEnd to true
-	if foo == child.chars {
-		child.isEnd = true
+	// if key == child.chars, don't have to create a new child, but only have to set the current child's .isEnd to true
+	if key == child.chars {
+		child.value = value
 		return
 	}
 
-	// commonPrefix is now the longest common substring of foo and child.chars [e.g. only "ab" from "abab" is contained in "abba"]
-	commonPrefix, prefixEnd := getLongestCommonPrefix(foo, child.chars)
+	// commonPrefix is now the longest common substring of key and child.chars [e.g. only "ab" from "abab" is contained in "abba"]
+	commonPrefix, prefixEnd := getLongestCommonPrefix(key, child.chars)
 
-	// insert chars not shared if commonPrefix == child.chars [e.g. child is "ab", foo is "abc". we only want to insert "c" below "ab"]
+	// insert chars not shared if commonPrefix == child.chars [e.g. child is "ab", key is "abc". we only want to insert "c" below "ab"]
 	if commonPrefix == child.chars {
-		child.Insert(foo[prefixEnd:])
+		child.Insert(key[prefixEnd:], value)
 		return
 	}
 
-	// if current child is "abc" and foo is "abx", we need to create a new child "ab" with two sub children "c" and "x"
+	// if current child is "abc" and key is "abx", we need to create a new child "ab" with two sub children "c" and "x"
 
 	// create new child node to replace current child
-	newChild := &RadixTrie{make(map[byte]*RadixTrie), commonPrefix, false}
+	newChild := &RadixTrie{make(map[byte]*RadixTrie), commonPrefix, nil}
 
 	// replace child of current node with new child: map first letter of common prefix to new child
 	node.children[commonPrefix[0]] = newChild
@@ -61,74 +61,74 @@ func (node *RadixTrie) Insert(foo string) {
 	// map old child's new first letter to old child as a child of the new child
 	newChild.children[child.chars[0]] = child
 
-	// if there are chars left of foo, insert them into our new child
-	if foo != newChild.chars {
-		// insert chars left of foo into new child [insert "abba" into "abab" -> "ab" with "ab" as child. now go into node "ab" and create child node "ba"]
-		newChild.Insert(foo[prefixEnd:])
+	// if there are chars left of key, insert them into our new child
+	if key != newChild.chars {
+		// insert chars left of key into new child [insert "abba" into "abab" -> "ab" with "ab" as child. now go into node "ab" and create child node "ba"]
+		newChild.Insert(key[prefixEnd:], value)
 
 	// else, set new.Child.isEnd = true and return
 	} else {
-		newChild.isEnd = true
+		newChild.value = value
 		return
 	}
 }
 
-// return true if foo is contained in the tree
-func (node *RadixTrie) Find(foo string) bool {
-	// look up the child starting with the same letter as foo
+// return true if key is contained in the tree
+func (node *RadixTrie) Find(key string) interface{} {
+	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return false
-	child, ok := node.children[foo[0]]
+	child, ok := node.children[key[0]]
 	if !ok {
-		return false
+		return nil
 	}
 
 	// check if the end of our string is found and return .isEnd
-	if foo == child.chars {
-		return child.isEnd
+	if key == child.chars {
+		return child.value
 	}
 
-	// commonPrefix is now the longest common substring of foo and child.chars [e.g. only "ab" from "abab" is contained in "abba"]
-	commonPrefix, prefixEnd := getLongestCommonPrefix(foo, child.chars)
+	// commonPrefix is now the longest common substring of key and child.chars [e.g. only "ab" from "abab" is contained in "abba"]
+	commonPrefix, prefixEnd := getLongestCommonPrefix(key, child.chars)
 
-	// if child.chars is not completely contained in foo, abort [e.g. trying to find "ab" in "abc"]
+	// if child.chars is not completely contained in key, abort [e.g. trying to find "ab" in "abc"]
 	if child.chars != commonPrefix {
-		return false
+		return nil
 	}
 
-	// find the chars left of foo in child
-	return child.Find(foo[prefixEnd:])
+	// find the chars left of key in child
+	return child.Find(key[prefixEnd:])
 }
 
-func (node *RadixTrie) Delete(foo string) {
-	// look up the child starting with the same letter as foo
+func (node *RadixTrie) Delete(key string) {
+	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return
-	child, ok := node.children[foo[0]]
+	child, ok := node.children[key[0]]
 	if !ok {
 		return
 	}
 
-	// set child.isEnd = false if foo == child.chars and, if child has no children on its own, remove it completely
-	if foo == child.chars {
-		child.isEnd = false
+	// set child.isEnd = false if key == child.chars and, if child has no children on its own, remove it completely
+	if key == child.chars {
+		child.value = nil
 		// remove child from current node if empty (when child has no children on its own)	
 		if len(child.children) == 0 {
-			delete(node.children, foo[0])
+			delete(node.children, key[0])
 		}
 		return
 	}
 
-	// foo != child.chars
+	// key != child.chars
 
-	// commonPrefix is now the longest common substring of foo and child.chars [e.g. only "ab" from "abab" is contained in "abba"]
-	commonPrefix, prefixEnd := getLongestCommonPrefix(foo, child.chars)
+	// commonPrefix is now the longest common substring of key and child.chars [e.g. only "ab" from "abab" is contained in "abba"]
+	commonPrefix, prefixEnd := getLongestCommonPrefix(key, child.chars)
 
-	// if child.chars is not completely contained in foo, abort [e.g. trying to delete "ab" from "abc"]
+	// if child.chars is not completely contained in key, abort [e.g. trying to delete "ab" from "abc"]
 	if child.chars != commonPrefix {
 		return
 	}
 
 	// else: cut off common prefix and delete left string in child
-	child.Delete(foo[prefixEnd:])
+	child.Delete(key[prefixEnd:])
 }
 
 func (node *RadixTrie) Print(level int) {
@@ -137,7 +137,7 @@ func (node *RadixTrie) Print(level int) {
 		fmt.Print("\t")
 		x--
 	}
-	fmt.Printf("'%v'  end: %v\n", node.chars, node.isEnd)
+	fmt.Printf("'%v'  end: %v\n", node.chars, node.value)
 	if len(node.children) != 0 {
 		// iterate over children, print each
 		for _, child := range node.children {
@@ -147,5 +147,5 @@ func (node *RadixTrie) Print(level int) {
 }
 
 func New() *RadixTrie {
-	return &RadixTrie{make(map[byte]*RadixTrie), "", false}
+	return &RadixTrie{make(map[byte]*RadixTrie), "", nil}
 }
