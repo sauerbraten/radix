@@ -139,6 +139,6 @@ func (node *RadixTrie) Print(level int) {
 	}
 }
 
-func NewRadixTrie() *RadixTrie {
+func New() *RadixTrie {
 	return &RadixTrie{make(map[byte]*RadixTrie), "", false}
 }
