@@ -61,8 +61,16 @@ func (node *RadixTrie) Insert(foo string) {
 	// map old child's new first letter to old child as a child of the new child
 	newChild.children[child.chars[0]] = child
 
-	// insert chars left of foo into new child [insert "abba" into "abab" -> "ab" with "ab" as child. now go into node "ab" and create child node "ba"]
-	newChild.Insert(foo[prefixEnd:])
+	// if there are chars left of foo, insert them into our new child
+	if foo != newChild.chars {
+		// insert chars left of foo into new child [insert "abba" into "abab" -> "ab" with "ab" as child. now go into node "ab" and create child node "ba"]
+		newChild.Insert(foo[prefixEnd:])
+
+	// else, set new.Child.isEnd = true and return
+	} else {
+		newChild.isEnd = true
+		return
+	}
 }
 
 // return true if foo is contained in the tree
