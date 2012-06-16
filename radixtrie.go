@@ -109,10 +109,18 @@ func (node *RadixTrie) Delete(key string) {
 
 	// set child.isEnd = false if key == child.chars and, if child has no children on its own, remove it completely
 	if key == child.chars {
-		child.value = nil
 		// remove child from current node if empty (when child has no children on its own)	
 		if len(child.children) == 0 {
 			delete(node.children, key[0])
+		} else if len(child.children) == 1 {
+			// iterate over map to get the single key-value pair
+			for _, subchild := range child.children {
+				child.chars = child.chars + subchild.chars
+				child.value = subchild.value
+				child.children = subchild.children
+			}
+		} else {
+			child.value = nil
 		}
 		return
 	}
