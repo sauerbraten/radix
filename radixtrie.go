@@ -32,7 +32,7 @@ func (node *RadixTrie) Insert(key string, value interface{}) {
 		return
 	}
 
-	// if key == child.chars, don't have to create a new child, but only have to set the current child's .isEnd to true
+	// if key == child.chars, don't have to create a new child, but only have to set the (maybe new) value
 	if key == child.chars {
 		child.value = value
 		return
@@ -66,14 +66,14 @@ func (node *RadixTrie) Insert(key string, value interface{}) {
 		// insert chars left of key into new child [insert "abba" into "abab" -> "ab" with "ab" as child. now go into node "ab" and create child node "ba"]
 		newChild.Insert(key[prefixEnd:], value)
 
-	// else, set new.Child.isEnd = true and return
+	// else, set new.Child.value to the value to insert and return
 	} else {
 		newChild.value = value
 		return
 	}
 }
 
-// return true if key is contained in the tree
+// Find returns the value associated with key, or nil if there is no value set to key
 func (node *RadixTrie) Find(key string) interface{} {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return false
@@ -107,19 +107,21 @@ func (node *RadixTrie) Delete(key string) {
 		return
 	}
 
-	// set child.isEnd = false if key == child.chars and, if child has no children on its own, remove it completely
+	// if the correct end node is found...
 	if key == child.chars {
-		// remove child from current node if empty (when child has no children on its own)	
 		if len(child.children) == 0 {
+			// remove child from current node if child has no children on its own
 			delete(node.children, key[0])
 		} else if len(child.children) == 1 {
-			// iterate over map to get the single key-value pair
+			// since len(child.children) == 1, there is only one subchild; we have to use range to get the value, though, since we do not know the key
 			for _, subchild := range child.children {
+				// essentially moves the subchild up one level to replace the child we want to delete, while keeping the chars of child
 				child.chars = child.chars + subchild.chars
 				child.value = subchild.value
 				child.children = subchild.children
 			}
 		} else {
+			// if there are >= 2 subchilds, we can only set the value to nil, thus delete any value set to key
 			child.value = nil
 		}
 		return
