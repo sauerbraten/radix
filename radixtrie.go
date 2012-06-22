@@ -4,6 +4,7 @@ import (
 	"fmt"
 )
 
+// The struct of a node. A node that is no child of a parent node is the root node of a trie.
 type RadixTrie struct {
 	// children maps the first letter of each child to the child itself, e.g. "a" -> "ab", "x" -> "xyz", "y" -> "yza", ...
 	children map[byte]*RadixTrie
@@ -22,6 +23,7 @@ func getLongestCommonPrefix(key, bar string) (string, int) {
 	return key[:x], x // == bar[:x]
 }
 
+// Insert inserts value at key.
 func (node *RadixTrie) Insert(key string, value interface{}) {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, insert a new one
@@ -99,6 +101,8 @@ func (node *RadixTrie) Find(key string) interface{} {
 	return child.Find(key[prefixEnd:])
 }
 
+
+// Delete unsets any value set to key. If no value exists for key, nothing happens.
 func (node *RadixTrie) Delete(key string) {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return
@@ -141,6 +145,8 @@ func (node *RadixTrie) Delete(key string) {
 	child.Delete(key[prefixEnd:])
 }
 
+
+// Print prints a properly indented trie structure of the current trie state. It is not test safe though, due to the 'range node.children'.
 func (node *RadixTrie) Print(level int) {
 	x := level
 	for x > 0 {
@@ -156,6 +162,7 @@ func (node *RadixTrie) Print(level int) {
 	}
 }
 
+// New returns a pointer to an empty, initialized radix trie structure (i.e. the root node).
 func New() *RadixTrie {
 	return &RadixTrie{make(map[byte]*RadixTrie), "", nil}
 }
