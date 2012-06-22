@@ -76,3 +76,7 @@ This example should print the following:
 	'a' holds: value 2
 	'c' holds: <nil>
 	'abd' holds: [118 97 108 117 101 32 51]
+
+### Documentation
+
+For full package documentation, visit http://go.pkgdoc.org/github.com/sauerbraten/radixtrie.
