@@ -202,6 +202,9 @@ func (r *Radix) getKeys(p string) []string {
 func (r *Radix) Len() int {
 	i := 0
 	if r != nil {
+		if r.value == nil {
+			return i
+		}
 		i++
 		for _, child := range r.children {
 			i += child.Len()
