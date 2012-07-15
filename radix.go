@@ -164,6 +164,18 @@ func (r *Radix) Do(f func(interface{})) {
 	}
 }
 
+// Len computes the number of nodes in the radix tree r.
+func (r *Radix) Len() int {
+	i := 0
+	if r != nil {
+		i++
+		for _, child := range r.children {
+			i += child.Len()
+		}
+	}
+	return i
+}
+
 // New returns an initialized radix tree.
 func New() *Radix {
 	return &Radix{make(map[byte]*Radix), "", nil}

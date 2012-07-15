@@ -18,7 +18,10 @@ func printit(r *Radix, level int) {
 // None, of the childeren must have a prefix incommon with r.key
 func validate(r *Radix) bool {
 	for _, child := range r.children {
-		s, i := longestCommonPrefix(r.key, child.key)
+		_, i := longestCommonPrefix(r.key, child.key)
+		if i != 0 {
+			return false
+		}
 		validate(child)
 	}
 	return true
@@ -30,7 +33,9 @@ func TestInsert(t *testing.T) {
 		t.Log("Tree does not validate")
 		t.Fail()
 	}
+	println(r.Len())
 	r.Insert("test", nil)
+	println(r.Len())
 	printit(r, 0)
 
 	r.Insert("slow", nil)
@@ -39,6 +44,7 @@ func TestInsert(t *testing.T) {
 	r.Insert("testering", nil)
 	r.Insert("rewater", nil)
 	r.Insert("waterrat", nil)
+	println(r.Len())
 	printit(r, 0)
 	validate(r)
 	t.Fail()
