@@ -8,8 +8,6 @@ An implementation of a radix tree in Go. See
 
 Or the [wikipedia article](http://en.wikipedia.org/wiki/Radix_tree) .
 
-This version is forked from http://github.com/sauerbraten/radixtrie
-
 ## Usage
 
 Get the package:
