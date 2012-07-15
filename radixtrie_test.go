@@ -6,26 +6,23 @@ import (
 )
 
 func (r *Radix) printit(level int) {
-	x := level
-	for x > 0 {
+	for i:=0; i < level; i++ {
 		fmt.Print("\t")
-		x--
 	}
 	fmt.Printf("'%v'  end: %v\n", r.chars, r.Value)
 	if len(r.children) != 0 {
 		// iterate over children, print each                                                        
 		for _, child := range r.children {
-			child.Print(level + 1)
+			child.printit(level + 1)
 		}
 	}
-
 }
 
-func TestRadixTrie(t *testing.T) {
-	trie := New()
-	if trie.value != nil {
-		t.Fail()
-	}
+func TestInsert(t *testing.T) {
+	r := New()
+	r.Insert("test", nil)
+	r.Insert("slow", nil)
+	r.Insert("water", nil)
 }
 
 func Example() {
