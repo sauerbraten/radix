@@ -1,16 +1,25 @@
 package radixtrie
 
 import (
-	"testing"
 	"fmt"
+	"testing"
 )
 
-func (r *Radix) print(level int) {
+func (r *Radix) printit(level int) {
+	x := level
+	for x > 0 {
+		fmt.Print("\t")
+		x--
+	}
+	fmt.Printf("'%v'  end: %v\n", r.chars, r.Value)
+	if len(r.children) != 0 {
+		// iterate over children, print each                                                        
+		for _, child := range r.children {
+			child.Print(level + 1)
+		}
+	}
 
 }
-
-
-
 
 func TestRadixTrie(t *testing.T) {
 	trie := New()
@@ -53,4 +62,4 @@ func Example() {
 	// 'x' holds: <nil>
 	// 'abd' holds: [118 97 108 117 101 32 51]
 
-}	
+}

@@ -7,10 +7,6 @@
 // Or see http://en.wikipedia.org/wiki/Radix_tree for more information.
 package radixtrie
 
-import (
-	"fmt"
-)
-
 // Radix represents a radix tree.
 type Radix struct {
 	// children maps the first letter of each child to the child itself, e.g. "a" -> "ab", "x" -> "xyz", "y" -> "yza", ...
@@ -151,23 +147,6 @@ func (r *Radix) Delete(key string) {
 
 	// else: cut off common prefix and delete left string in child
 	child.Delete(key[prefixEnd:])
-}
-
-
-// Print prints a properly indented trie structure of the current trie state. It is not test safe though, due to the 'range node.children'.
-func (r *Radix) Print(level int) {
-	x := level
-	for x > 0 {
-		fmt.Print("\t")
-		x--
-	}
-	fmt.Printf("'%v'  end: %v\n", r.chars, r.Value)
-	if len(r.children) != 0 {
-		// iterate over children, print each
-		for _, child := range r.children {
-			child.Print(level + 1)
-		}
-	}
 }
 
 // New returns an initialized radix trie.
