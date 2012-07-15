@@ -1,15 +1,24 @@
+// Package radix implements a radix tree.                                                           
+//                                                                                                  
+// A radix tree is defined in:                                                                      
+//    Donald R. Morrison. "PATRICIA -- practical algorithm to retrieve                              
+//    information coded in alphanumeric". Journal of the ACM, 15(4):514-534,                        
+//    October 1968                                                                                  
+// Or see http://en.wikipedia.org/wiki/Radix_tree for more information.
 package radixtrie
 
 import (
 	"fmt"
 )
 
-// The struct of a node. A node that is no child of a parent node is the root node of a trie.
-type RadixTrie struct {
+// Radix represents a radix tree.
+type Radix struct {
 	// children maps the first letter of each child to the child itself, e.g. "a" -> "ab", "x" -> "xyz", "y" -> "yza", ...
-	children map[byte]*RadixTrie
+	children map[byte]*Radix
 	chars    string
-	value    interface{}
+
+	// The contents of the radix node.
+	Value    interface{}
 }
 
 func getLongestCommonPrefix(key, bar string) (string, int) {
@@ -23,13 +32,13 @@ func getLongestCommonPrefix(key, bar string) (string, int) {
 	return key[:x], x // == bar[:x]
 }
 
-// Insert inserts value at key.
-func (node *RadixTrie) Insert(key string, value interface{}) {
+// Insert inserts the value into the tree with the specified key.
+func (node *Radix) Insert(key string, value interface{}) {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, insert a new one
 	child, ok := node.children[key[0]]
 	if !ok {
-		newChild := &RadixTrie{make(map[byte]*RadixTrie), key, value}
+		newChild := &Radix{make(map[byte]*Radix), key, value}
 		node.children[key[0]] = newChild
 		return
 	}
@@ -52,7 +61,7 @@ func (node *RadixTrie) Insert(key string, value interface{}) {
 	// if current child is "abc" and key is "abx", we need to create a new child "ab" with two sub children "c" and "x"
 
 	// create new child node to replace current child
-	newChild := &RadixTrie{make(map[byte]*RadixTrie), commonPrefix, nil}
+	newChild := &Radix{make(map[byte]*Radix), commonPrefix, nil}
 
 	// replace child of current node with new child: map first letter of common prefix to new child
 	node.children[commonPrefix[0]] = newChild
@@ -76,7 +85,7 @@ func (node *RadixTrie) Insert(key string, value interface{}) {
 }
 
 // Find returns the value associated with key, or nil if there is no value set to key
-func (node *RadixTrie) Find(key string) interface{} {
+func (node *Radix) Find(key string) interface{} {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return false
 	child, ok := node.children[key[0]]
@@ -103,7 +112,7 @@ func (node *RadixTrie) Find(key string) interface{} {
 
 
 // Delete unsets any value set to key. If no value exists for key, nothing happens.
-func (node *RadixTrie) Delete(key string) {
+func (node *Radix) Delete(key string) {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return
 	child, ok := node.children[key[0]]
@@ -147,7 +156,7 @@ func (node *RadixTrie) Delete(key string) {
 
 
 // Print prints a properly indented trie structure of the current trie state. It is not test safe though, due to the 'range node.children'.
-func (node *RadixTrie) Print(level int) {
+func (node *Radix) Print(level int) {
 	x := level
 	for x > 0 {
 		fmt.Print("\t")
@@ -163,6 +172,6 @@ func (node *RadixTrie) Print(level int) {
 }
 
 // New returns a pointer to an empty, initialized radix trie structure (i.e. the root node).
-func New() *RadixTrie {
-	return &RadixTrie{make(map[byte]*RadixTrie), "", nil}
+func New() *Radix {
+	return &Radix{make(map[byte]*Radix), "", nil}
 }
