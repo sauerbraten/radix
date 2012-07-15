@@ -191,9 +191,9 @@ func (r *Radix) FindPrefix(prefix string) []string {
 
 func (r *Radix) getKeys(p string) []string {
 	s := make([]string, 0)
-	s = append(s, p + r.key)
+	s = append(s, p+r.key)
 	for _, c := range r.children {
-		s = append(s, c.getKeys(p + r.key)...)
+		s = append(s, c.getKeys(p+r.key)...)
 	}
 	return s
 }
@@ -202,10 +202,9 @@ func (r *Radix) getKeys(p string) []string {
 func (r *Radix) Len() int {
 	i := 0
 	if r != nil {
-		if r.value == nil {
-			return i
+		if r.value != nil {
+			i++
 		}
-		i++
 		for _, child := range r.children {
 			i += child.Len()
 		}
