@@ -40,9 +40,9 @@ func Example() {
 	//trie.Print(0)
 
 	// delete some strings, even strings not contained
-	trie.Delete("c")
-	trie.Delete("b")
-	trie.Delete("ab")
+	trie.Remove("c")
+	trie.Remove("b")
+	trie.Remove("ab")
 
 	// print again, notice the changes:
 	// 'b' is gone, 'ab' is no longer an end note, means it is no longer contained as a string
