@@ -29,26 +29,24 @@ func validate(r *Radix) bool {
 
 func TestInsert(t *testing.T) {
 	r := New()
-	println(r.Len())
 	if !validate(r) {
 		t.Log("Tree does not validate")
 		t.Fail()
 	}
-	println(r.Len())
+	if r.Len() != 1 {
+		t.Log("Len should be 1")
+	}
 	r.Insert("test", nil)
-	println(r.Len())
-	printit(r, 0)
-
 	r.Insert("slow", nil)
 	r.Insert("water", nil)
 	r.Insert("tester", nil)
 	r.Insert("testering", nil)
 	r.Insert("rewater", nil)
 	r.Insert("waterrat", nil)
-	println(r.Len())
-	printit(r, 0)
-	validate(r)
-	t.Fail()
+	if !validate(r) {
+		t.Log("Tree does not validate")
+		t.Fail()
+	}
 }
 
 //	r.Insert("ab", "1")
