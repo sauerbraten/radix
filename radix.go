@@ -168,7 +168,7 @@ func (r *Radix) Do(f func(interface{})) {
 func (r *Radix) Len() int {
 	i := 0
 	if r != nil {
-			i++
+		i++
 		for _, child := range r.children {
 			i += child.Len()
 		}
