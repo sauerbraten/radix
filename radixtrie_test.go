@@ -16,12 +16,11 @@ func printit(r *Radix, level int) {
 }
 
 func validate(r *Radix) bool {
-	if r.key == "" {
-		return true
-	}
-	// 
+	// None, of the childeren must have a prefix incommon with r.key
 	for _, child := range r.children {
-
+		s, i := longestCommonPrefix(r.key, child.key)
+		println("s", s, "i", i)
+		validate(child)
 	}
 	return true
 }
@@ -43,6 +42,7 @@ func TestInsert(t *testing.T) {
 	r.Insert("rewater", nil)
 	r.Insert("waterrat", nil)
 	printit(r, 0)
+	validate(r)
 	t.Fail()
 }
 
