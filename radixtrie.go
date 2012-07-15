@@ -21,7 +21,7 @@ type Radix struct {
 	Value    interface{}
 }
 
-func getLongestCommonPrefix(key, bar string) (string, int) {
+func longestCommonPrefix(key, bar string) (string, int) {
 	x := 0
 	for key[x] == bar[x] {
 		x = x + 1
@@ -33,13 +33,13 @@ func getLongestCommonPrefix(key, bar string) (string, int) {
 }
 
 // Insert inserts the value into the tree with the specified key.
+// If a key already exists it will be silently overwritten.
 func (node *Radix) Insert(key string, value interface{}) {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, insert a new one
 	child, ok := node.children[key[0]]
 	if !ok {
-		newChild := &Radix{make(map[byte]*Radix), key, value}
-		node.children[key[0]] = newChild
+		node.children[key[0]] = &Radix{make(map[byte]*Radix), key, value}
 		return
 	}
 
@@ -50,7 +50,7 @@ func (node *Radix) Insert(key string, value interface{}) {
 	}
 
 	// commonPrefix is now the longest common substring of key and child.chars [e.g. only "ab" from "abab" is contained in "abba"]
-	commonPrefix, prefixEnd := getLongestCommonPrefix(key, child.chars)
+	commonPrefix, prefixEnd := longestCommonPrefix(key, child.chars)
 
 	// insert chars not shared if commonPrefix == child.chars [e.g. child is "ab", key is "abc". we only want to insert "c" below "ab"]
 	if commonPrefix == child.chars {
@@ -99,7 +99,7 @@ func (node *Radix) Find(key string) interface{} {
 	}
 
 	// commonPrefix is now the longest common substring of key and child.chars [e.g. only "ab" from "abab" is contained in "abba"]
-	commonPrefix, prefixEnd := getLongestCommonPrefix(key, child.chars)
+	commonPrefix, prefixEnd := longestCommonPrefix(key, child.chars)
 
 	// if child.chars is not completely contained in key, abort [e.g. trying to find "ab" in "abc"]
 	if child.chars != commonPrefix {
@@ -143,7 +143,7 @@ func (node *Radix) Delete(key string) {
 	// key != child.chars
 
 	// commonPrefix is now the longest common substring of key and child.chars [e.g. only "ab" from "abab" is contained in "abba"]
-	commonPrefix, prefixEnd := getLongestCommonPrefix(key, child.chars)
+	commonPrefix, prefixEnd := longestCommonPrefix(key, child.chars)
 
 	// if child.chars is not completely contained in key, abort [e.g. trying to delete "ab" from "abc"]
 	if child.chars != commonPrefix {
@@ -171,7 +171,7 @@ func (node *Radix) Print(level int) {
 	}
 }
 
-// New returns a pointer to an empty, initialized radix trie structure (i.e. the root node).
+// New returns an initialized radix trie.
 func New() *Radix {
 	return &Radix{make(map[byte]*Radix), "", nil}
 }
