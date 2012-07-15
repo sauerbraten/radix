@@ -49,12 +49,21 @@ func TestInsert(t *testing.T) {
 	}
 }
 
+func TestFind(t *testing.T) {
+	r := New()
+	r.Insert("tester", nil)
+	r.Insert("testering", nil)
+	r.Insert("te", nil)
+	r.Insert("testeringandmore", nil)
+
+}
+
 func TestRemove(t *testing.T) {
 	r := New()
 	r.Insert("test", "aa")
 	r.Insert("slow", "bb")
 
-	if r.Remove("slow").(string) != "bb" {
+	if r.Remove("slow").(string)!= "bb" {
 		t.Log("should be bb")
 		t.Fail()
 	}
