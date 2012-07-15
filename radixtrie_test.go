@@ -5,56 +5,48 @@ import (
 	"testing"
 )
 
-func (r *Radix) printit(level int) {
+func printit(r *Radix, level int) {
 	for i:=0; i < level; i++ {
 		fmt.Print("\t")
 	}
-	fmt.Printf("'%v'  value: %v\n", r.chars, r.Value)
-	if len(r.children) != 0 {
-		// iterate over children, print each                                                        
-		for _, child := range r.children {
-			child.printit(level + 1)
-		}
+	fmt.Printf("'%v'  value: %v\n", r.key, r.Value)
+	for _, child := range r.children {
+		printit(child, level + 1)
 	}
+}
+
+func validate(r *Radix) bool {
+	if r.key == "" {
+		return true
+	}
+	// 
+	for _, child := range r.children {
+
+	}
+	return true
 }
 
 func TestInsert(t *testing.T) {
 	r := New()
+	if !validate(r) {
+		t.Log("Tree does not validate")
+		t.Fail()
+	}
 	r.Insert("test", nil)
+	printit(r, 0)
+
+
 	r.Insert("slow", nil)
 	r.Insert("water", nil)
+	r.Insert("tester", nil)
+	r.Insert("testering", nil)
+	r.Insert("rewater", nil)
+	r.Insert("waterrat", nil)
+	printit(r, 0)
+	t.Fail()
 }
 
-func Example() {
-	// create new trie
-	trie := New()
-
-	// insert some strings
-	trie.Insert("ab", "1")
-	trie.Insert("a", "2")
-	trie.Insert("abd", "3"))
-	trie.Insert("b", 4)
-
-	trie.printit(0)
-
-	trie.Remove("c")
-	trie.Remove("b")
-	trie.Remove("ab")
-	trie.printit(0)
-
-	// print again, notice the changes:
-	// 'b' is gone, 'ab' is no longer an end note, means it is no longer contained as a string
-	// not safe for tests, since the output can differ, depending of whether the 'a' or 'b' node comes first in the "range children" in Print()
-	trie.printit(0)
-
-	// use Find() to check if a string is contained in the trie
-	fmt.Printf("'a' holds: %v\n", trie.Find("a"))
-	fmt.Printf("'x' holds: %v\n", trie.Find("x"))
-	fmt.Printf("'abd' holds: %v\n", trie.Find("abd"))
-
-	// Output:
-	// 'a' holds: value 2
-	// 'x' holds: <nil>
-	// 'abd' holds: [118 97 108 117 101 32 51]
-
-}
+//	r.Insert("ab", "1")
+//	r.Insert("a", "2")
+//	r.Insert("abd", "3")
+//	r.Insert("b", 4)
