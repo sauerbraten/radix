@@ -58,6 +58,11 @@ func TestRemove(t *testing.T) {
 		t.Log("should be bb")
 		t.Fail()
 	}
+
+	if r.Remove("slow") != nil {
+		t.Log("should be nil")
+		t.Fail()
+	}
 }
 
 // prefix tester
