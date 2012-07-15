@@ -45,7 +45,7 @@ func (node *Radix) Insert(key string, value interface{}) {
 
 	// if key == child.chars, don't have to create a new child, but only have to set the (maybe new) value
 	if key == child.chars {
-		child.value = value
+		child.Value = value
 		return
 	}
 
@@ -77,9 +77,9 @@ func (node *Radix) Insert(key string, value interface{}) {
 		// insert chars left of key into new child [insert "abba" into "abab" -> "ab" with "ab" as child. now go into node "ab" and create child node "ba"]
 		newChild.Insert(key[prefixEnd:], value)
 
-	// else, set new.Child.value to the value to insert and return
+	// else, set new.Child.Value to the value to insert and return
 	} else {
-		newChild.value = value
+		newChild.Value = value
 		return
 	}
 }
@@ -95,7 +95,7 @@ func (node *Radix) Find(key string) interface{} {
 
 	// check if the end of our string is found and return .isEnd
 	if key == child.chars {
-		return child.value
+		return child.Value
 	}
 
 	// commonPrefix is now the longest common substring of key and child.chars [e.g. only "ab" from "abab" is contained in "abba"]
@@ -130,12 +130,12 @@ func (node *Radix) Delete(key string) {
 			for _, subchild := range child.children {
 				// essentially moves the subchild up one level to replace the child we want to delete, while keeping the chars of child
 				child.chars = child.chars + subchild.chars
-				child.value = subchild.value
+				child.Value = subchild.Value
 				child.children = subchild.children
 			}
 		} else {
 			// if there are >= 2 subchilds, we can only set the value to nil, thus delete any value set to key
-			child.value = nil
+			child.Value = nil
 		}
 		return
 	}
@@ -162,7 +162,7 @@ func (node *Radix) Print(level int) {
 		fmt.Print("\t")
 		x--
 	}
-	fmt.Printf("'%v'  end: %v\n", node.chars, node.value)
+	fmt.Printf("'%v'  end: %v\n", node.chars, node.Value)
 	if len(node.children) != 0 {
 		// iterate over children, print each
 		for _, child := range node.children {
