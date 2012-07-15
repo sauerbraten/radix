@@ -1,4 +1,4 @@
-package radixtrie
+package radix
 
 import (
 	"fmt"
