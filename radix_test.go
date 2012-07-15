@@ -49,6 +49,17 @@ func TestInsert(t *testing.T) {
 	}
 }
 
+func TestRemove(t *testing.T) {
+	r := New()
+	r.Insert("test", "aa")
+	r.Insert("slow", "bb")
+
+	if r.Remove("slow").(string) != "bb" {
+		t.Log("should be bb")
+		t.Fail()
+	}
+}
+
 //	r.Insert("ab", "1")
 //	r.Insert("a", "2")
 //	r.Insert("abd", "3")

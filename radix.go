@@ -109,22 +109,23 @@ func (r *Radix) Find(key string) interface{} {
 	return child.Find(key[prefixEnd:])
 }
 
-// Remove unsets any value set to key. If no value exists for key, nothing happens.
-// TODO(mg): remove entire node??
-func (r *Radix) Remove(key string) {
+// Remove removes any value set to key. If no value exists for key, nothing happens.
+func (r *Radix) Remove(key string) (v interface{}) {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return
 	child, ok := r.children[key[0]]
 	if !ok {
 		return
 	}
+	v = child.Value
 
 	// if the correct end node is found...
 	if key == child.key {
-		if len(child.children) == 0 {
+		switch len(child.children) {
+		case 0:
 			// remove child from current node if child has no children on its own
 			delete(r.children, key[0])
-		} else if len(child.children) == 1 {
+		case 1:
 			// since len(child.children) == 1, there is only one subchild; we have to use range to get the value, though, since we do not know the key
 			for _, subchild := range child.children {
 				// essentially moves the subchild up one level to replace the child we want to delete, while keeping the keys of child
@@ -132,7 +133,7 @@ func (r *Radix) Remove(key string) {
 				child.Value = subchild.Value
 				child.children = subchild.children
 			}
-		} else {
+		default:
 			// if there are >= 2 subchilds, we can only set the value to nil, thus delete any value set to key
 			child.Value = nil
 		}
@@ -146,11 +147,11 @@ func (r *Radix) Remove(key string) {
 
 	// if child.keys is not completely contained in key, abort [e.g. trying to delete "ab" from "abc"]
 	if child.key != commonPrefix {
-		return
+		return nil
 	}
 
 	// else: cut off common prefix and delete left string in child
-	child.Remove(key[prefixEnd:])
+	return child.Remove(key[prefixEnd:])
 }
 
 // Do calls function f on each node in the tree. The behavior of Do is              
