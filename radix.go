@@ -153,7 +153,18 @@ func (r *Radix) Remove(key string) {
 	child.Remove(key[prefixEnd:])
 }
 
-// New returns an initialized radix trie.
+// Do calls function f on each node in the tree. The behavior of Do is              
+// undefined if f changes *r.                                                       
+func (r *Radix) Do(f func(interface{})) {
+	if r != nil {
+		f(r.Value)
+		for _, child := range r.children {
+			child.Do(f)
+		}
+	}
+}
+
+// New returns an initialized radix tree.
 func New() *Radix {
 	return &Radix{make(map[byte]*Radix), "", nil}
 }
