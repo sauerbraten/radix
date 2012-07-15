@@ -83,7 +83,7 @@ For full package documentation, visit http://go.pkgdoc.org/github.com/sauerbrate
 
 ## License
 
-This code is licensed under the MIT License:
+This code is licensed under a BSD License:
 
 	Copyright (c) 2012 Alexander Willing. All rights reserved.
 	
