@@ -4,7 +4,8 @@
 //    Donald R. Morrison. "PATRICIA -- practical algorithm to retrieve                              
 //    information coded in alphanumeric". Journal of the ACM, 15(4):514-534,                        
 //    October 1968                                                                                  
-// Or see http://en.wikipedia.org/wiki/Radix_tree for more information.
+//
+// Also see http://en.wikipedia.org/wiki/Radix_tree for more information.
 package radixtrie
 
 // Radix represents a radix tree.
@@ -14,7 +15,7 @@ type Radix struct {
 	chars    string
 
 	// The contents of the radix node.
-	Value    interface{}
+	Value interface{}
 }
 
 func longestCommonPrefix(key, bar string) (string, int) {
@@ -72,7 +73,7 @@ func (r *Radix) Insert(key string, value interface{}) {
 		// insert chars left of key into new child [insert "abba" into "abab" -> "ab" with "ab" as child. now go into node "ab" and create child node "ba"]
 		newChild.Insert(key[prefixEnd:], value)
 
-	// else, set new.Child.Value to the value to insert and return
+		// else, set new.Child.Value to the value to insert and return
 	} else {
 		newChild.Value = value
 		return
@@ -104,7 +105,6 @@ func (r *Radix) Find(key string) interface{} {
 	// find the chars left of key in child
 	return child.Find(key[prefixEnd:])
 }
-
 
 // Remove unsets any value set to key. If no value exists for key, nothing happens.
 // TODO(mg): remove entire node??
