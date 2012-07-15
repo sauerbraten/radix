@@ -8,6 +8,10 @@
 // Also see http://en.wikipedia.org/wiki/Radix_tree for more information.
 package radix
 
+import (
+	"strings"
+)
+
 // Radix represents a radix tree.
 type Radix struct {
 	// children maps the first letter of each child to the child itself, e.g. "a" -> "ab", "x" -> "xyz", "y" -> "yza", ...
@@ -85,6 +89,15 @@ func (r *Radix) Insert(key string, value interface{}) {
 
 // Find returns the value associated with key, or nil if there is no value set to key
 func (r *Radix) Find(key string) interface{} {
+	r1 := r.find(key)
+	if r1 == nil {
+		return nil
+	}
+	return r1.Value
+}
+
+// find returns the radix (sub)tree associated with key, or nil if there is nothing found
+func (r *Radix) find(key string) *Radix {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return false
 	child, ok := r.children[key[0]]
@@ -94,7 +107,7 @@ func (r *Radix) Find(key string) interface{} {
 
 	// check if the end of our string is found and return .isEnd
 	if key == child.key {
-		return child.Value
+		return child
 	}
 
 	// commonPrefix is now the longest common substring of key and child.key [e.g. only "ab" from "abab" is contained in "abba"]
@@ -106,7 +119,7 @@ func (r *Radix) Find(key string) interface{} {
 	}
 
 	// find the keys left of key in child
-	return child.Find(key[prefixEnd:])
+	return child.find(key[prefixEnd:])
 }
 
 // Remove removes any value set to key. If no value exists for key, nothing happens.
@@ -163,6 +176,26 @@ func (r *Radix) Do(f func(interface{})) {
 			child.Do(f)
 		}
 	}
+}
+
+// FindPrefix returns all keys from the radix tree that have prefix as their prefix.
+func (r *Radix) FindPrefix(prefix string) []string {
+	subtree := r.find(prefix)
+	if subtree == nil {
+		return nil
+	}
+	x := strings.LastIndex(prefix, subtree.key)
+	prefix = prefix[:x]
+	return getKeys(subtree, prefix)
+}
+
+func getKeys(r *Radix, p string) []string {
+	s := make([]string, 0)
+	s = append(s, p + r.key)
+	for _, c := range r.children {
+		s = append(s, getKeys(c, p + r.key)...)
+	}
+	return s
 }
 
 // Len computes the number of nodes in the radix tree r.

@@ -49,15 +49,6 @@ func TestInsert(t *testing.T) {
 	}
 }
 
-func TestFind(t *testing.T) {
-	r := New()
-	r.Insert("tester", nil)
-	r.Insert("testering", nil)
-	r.Insert("te", nil)
-	r.Insert("testeringandmore", nil)
-
-}
-
 func TestRemove(t *testing.T) {
 	r := New()
 	r.Insert("test", "aa")
@@ -69,7 +60,17 @@ func TestRemove(t *testing.T) {
 	}
 }
 
-//	r.Insert("ab", "1")
-//	r.Insert("a", "2")
-//	r.Insert("abd", "3")
-//	r.Insert("b", 4)
+// prefix tester
+// prefix testering
+// prefix testeringandmore
+func ExampleTestFind(t *testing.T) {
+	r := New()
+	r.Insert("tester", nil)
+	r.Insert("testering", nil)
+	r.Insert("te", nil)
+	r.Insert("testeringandmore", nil)
+	for _, s := range r.FindPrefix("tester") {
+		println("prefix", s)
+	}
+}
+
