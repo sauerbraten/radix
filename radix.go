@@ -186,14 +186,14 @@ func (r *Radix) FindPrefix(prefix string) []string {
 	}
 	x := strings.LastIndex(prefix, subtree.key)
 	prefix = prefix[:x]
-	return getKeys(subtree, prefix)
+	return subtree.getKeys(prefix)
 }
 
-func getKeys(r *Radix, p string) []string {
+func (r *Radix) getKeys(p string) []string {
 	s := make([]string, 0)
 	s = append(s, p + r.key)
 	for _, c := range r.children {
-		s = append(s, getKeys(c, p + r.key)...)
+		s = append(s, c.getKeys(p + r.key)...)
 	}
 	return s
 }
