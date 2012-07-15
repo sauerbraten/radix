@@ -9,7 +9,7 @@ func printit(r *Radix, level int) {
 	for i := 0; i < level; i++ {
 		fmt.Print("\t")
 	}
-	fmt.Printf("'%v'  value: %v\n", r.key, r.Value)
+	fmt.Printf("'%v'  value: %v\n", r.key, r.value)
 	for _, child := range r.children {
 		printit(child, level+1)
 	}

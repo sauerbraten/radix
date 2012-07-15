@@ -19,7 +19,7 @@ type Radix struct {
 	key      string
 
 	// The contents of the radix node.
-	Value interface{}
+	value interface{}
 }
 
 func longestCommonPrefix(key, bar string) (string, int) {
@@ -48,7 +48,7 @@ func (r *Radix) Insert(key string, value interface{}) {
 
 	// if key == child.key, don't have to create a new child, but only have to set the (maybe new) value
 	if key == child.key {
-		child.Value = value
+		child.value = value
 		return
 	}
 
@@ -80,9 +80,9 @@ func (r *Radix) Insert(key string, value interface{}) {
 		// insert keys left of key into new child [insert "abba" into "abab" -> "ab" with "ab" as child. now go into node "ab" and create child node "ba"]
 		newChild.Insert(key[prefixEnd:], value)
 
-		// else, set new.Child.Value to the value to insert and return
+		// else, set new.Child.value to the value to insert and return
 	} else {
-		newChild.Value = value
+		newChild.value = value
 		return
 	}
 }
@@ -93,7 +93,7 @@ func (r *Radix) Find(key string) interface{} {
 	if r1 == nil {
 		return nil
 	}
-	return r1.Value
+	return r1.value
 }
 
 // find returns the radix (sub)tree associated with key, or nil if there is nothing found
@@ -130,7 +130,7 @@ func (r *Radix) Remove(key string) (v interface{}) {
 	if !ok {
 		return
 	}
-	v = child.Value
+	v = child.value
 
 	// if the correct end node is found...
 	if key == child.key {
@@ -143,12 +143,12 @@ func (r *Radix) Remove(key string) (v interface{}) {
 			for _, subchild := range child.children {
 				// essentially moves the subchild up one level to replace the child we want to delete, while keeping the keys of child
 				child.key = child.key + subchild.key
-				child.Value = subchild.Value
+				child.value = subchild.value
 				child.children = subchild.children
 			}
 		default:
 			// if there are >= 2 subchilds, we can only set the value to nil, thus delete any value set to key
-			child.Value = nil
+			child.value = nil
 		}
 		return
 	}
@@ -171,7 +171,7 @@ func (r *Radix) Remove(key string) (v interface{}) {
 // undefined if f changes *r.                                                       
 func (r *Radix) Do(f func(interface{})) {
 	if r != nil {
-		f(r.Value)
+		f(r.value)
 		for _, child := range r.children {
 			child.Do(f)
 		}
