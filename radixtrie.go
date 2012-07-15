@@ -106,8 +106,9 @@ func (r *Radix) Find(key string) interface{} {
 }
 
 
-// Delete unsets any value set to key. If no value exists for key, nothing happens.
-func (r *Radix) Delete(key string) {
+// Remove unsets any value set to key. If no value exists for key, nothing happens.
+// TODO(mg): remove entire node??
+func (r *Radix) Remove(key string) {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return
 	child, ok := r.children[key[0]]
@@ -146,7 +147,7 @@ func (r *Radix) Delete(key string) {
 	}
 
 	// else: cut off common prefix and delete left string in child
-	child.Delete(key[prefixEnd:])
+	child.Remove(key[prefixEnd:])
 }
 
 // New returns an initialized radix trie.
