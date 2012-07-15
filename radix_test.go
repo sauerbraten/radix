@@ -29,6 +29,7 @@ func validate(r *Radix) bool {
 
 func TestInsert(t *testing.T) {
 	r := New()
+	println(r.Len())
 	if !validate(r) {
 		t.Log("Tree does not validate")
 		t.Fail()
