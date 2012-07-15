@@ -1,37 +1,48 @@
-# radixtrie
+# Radix
 
-An implementation of the [radix trie data structure](http://en.wikipedia.org/wiki/Radix_tree) in Go
+An implementation of a radix tree in Go. See
+
+> Donald R. Morrison. "PATRICIA -- practical algorithm to retrieve              
+> information coded in alphanumeric". Journal of the ACM, 15(4):514-534,        
+> October 1968    
+
+Or the [wikipedia article](http://en.wikipedia.org/wiki/Radix_tree) .
+
+This version is forked from http://github.com/sauerbraten/radixtrie
 
 ## Usage
 
 Get the package:
 
-	$ go get github.com/sauerbraten/radixtrie
+	$ go get github.com/miekg/radix
 
 Import the package:
 
 	import (
-		"github.com/sauerbraten/radixtrie"
+		"github.com/miekg/radix"
 	)
 
-You can use the radixtrie as a key-value structure, where every node's can have its own value (as shown in the exmaple below), or you can of course just use it to look up strings, like so:
+You can use the tree as a key-value structure, where every node's can have its
+own value (as shown in the example below), or you can of course just use it to
+look up strings, like so:
 
-	trie := radixtrie.New()
-	trie.Insert("foo", true)
-	fmt.Printf("foo is contained: %v\n", trie.Find("foo"))
+	r := radix.New()
+	r.Insert("foo", true)
+	fmt.Printf("foo is contained: %v\n", r.Find("foo"))
 
 
-### Example
+This code is licensed under a BSD License:
+    
+        All modifications from the original version are (c) 2012 Miek
+        Gieben.
 
-This example code is taken from the radixtrie_test.go file
-
-	package main
+	Copyright (c) 2012 Alexander Willing. All rights reserved.
 	
-	import (
-		"github.com/sauerbraten/radixtrie"
-		"fmt"
-	)
+	Redistribution and use in source and binary forms, with or without
+	modification, are permitted provided that the following conditions are
+	met:
 	
+<<<<<<< HEAD
 	func main() {
 		// create new trie
 		trie := radixtrie.New()
@@ -91,6 +102,8 @@ This code is licensed under a BSD License:
 	modification, are permitted provided that the following conditions are
 	met:
 	
+=======
+>>>>>>> 301325397cef012335c80e79dc27d59be8c22e8a
 		* Redistributions of source code must retain the above copyright
 	notice, this list of conditions and the following disclaimer.
 		* Redistributions in binary form must reproduce the above
@@ -108,4 +121,8 @@ This code is licensed under a BSD License:
 	DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
 	THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 	(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+<<<<<<< HEAD
 	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+=======
+	OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+>>>>>>> 301325397cef012335c80e79dc27d59be8c22e8a
