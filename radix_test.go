@@ -6,12 +6,12 @@ import (
 )
 
 func printit(r *Radix, level int) {
-	for i:=0; i < level; i++ {
+	for i := 0; i < level; i++ {
 		fmt.Print("\t")
 	}
 	fmt.Printf("'%v'  value: %v\n", r.key, r.Value)
 	for _, child := range r.children {
-		printit(child, level + 1)
+		printit(child, level+1)
 	}
 }
 

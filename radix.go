@@ -12,7 +12,7 @@ package radix
 type Radix struct {
 	// children maps the first letter of each child to the child itself, e.g. "a" -> "ab", "x" -> "xyz", "y" -> "yza", ...
 	children map[byte]*Radix
-	key    string
+	key      string
 
 	// The contents of the radix node.
 	Value interface{}
