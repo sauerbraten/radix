@@ -12,7 +12,7 @@ package radixtrie
 type Radix struct {
 	// children maps the first letter of each child to the child itself, e.g. "a" -> "ab", "x" -> "xyz", "y" -> "yza", ...
 	children map[byte]*Radix
-	chars    string
+	key    string
 
 	// The contents of the radix node.
 	Value interface{}
@@ -39,17 +39,17 @@ func (r *Radix) Insert(key string, value interface{}) {
 		return
 	}
 
-	// if key == child.chars, don't have to create a new child, but only have to set the (maybe new) value
-	if key == child.chars {
+	// if key == child.key, don't have to create a new child, but only have to set the (maybe new) value
+	if key == child.key {
 		child.Value = value
 		return
 	}
 
-	// commonPrefix is now the longest common substring of key and child.chars [e.g. only "ab" from "abab" is contained in "abba"]
-	commonPrefix, prefixEnd := longestCommonPrefix(key, child.chars)
+	// commonPrefix is now the longest common substring of key and child.key [e.g. only "ab" from "abab" is contained in "abba"]
+	commonPrefix, prefixEnd := longestCommonPrefix(key, child.key)
 
-	// insert chars not shared if commonPrefix == child.chars [e.g. child is "ab", key is "abc". we only want to insert "c" below "ab"]
-	if commonPrefix == child.chars {
+	// insert keys not shared if commonPrefix == child.key [e.g. child is "ab", key is "abc". we only want to insert "c" below "ab"]
+	if commonPrefix == child.key {
 		child.Insert(key[prefixEnd:], value)
 		return
 	}
@@ -62,15 +62,15 @@ func (r *Radix) Insert(key string, value interface{}) {
 	// replace child of current node with new child: map first letter of common prefix to new child
 	r.children[commonPrefix[0]] = newChild
 
-	// shorten old chars to the non-shared part
-	child.chars = child.chars[prefixEnd:]
+	// shorten old keys to the non-shared part
+	child.key = child.key[prefixEnd:]
 
 	// map old child's new first letter to old child as a child of the new child
-	newChild.children[child.chars[0]] = child
+	newChild.children[child.key[0]] = child
 
-	// if there are chars left of key, insert them into our new child
-	if key != newChild.chars {
-		// insert chars left of key into new child [insert "abba" into "abab" -> "ab" with "ab" as child. now go into node "ab" and create child node "ba"]
+	// if there are keys left of key, insert them into our new child
+	if key != newChild.key {
+		// insert keys left of key into new child [insert "abba" into "abab" -> "ab" with "ab" as child. now go into node "ab" and create child node "ba"]
 		newChild.Insert(key[prefixEnd:], value)
 
 		// else, set new.Child.Value to the value to insert and return
@@ -90,19 +90,19 @@ func (r *Radix) Find(key string) interface{} {
 	}
 
 	// check if the end of our string is found and return .isEnd
-	if key == child.chars {
+	if key == child.key {
 		return child.Value
 	}
 
-	// commonPrefix is now the longest common substring of key and child.chars [e.g. only "ab" from "abab" is contained in "abba"]
-	commonPrefix, prefixEnd := longestCommonPrefix(key, child.chars)
+	// commonPrefix is now the longest common substring of key and child.key [e.g. only "ab" from "abab" is contained in "abba"]
+	commonPrefix, prefixEnd := longestCommonPrefix(key, child.key)
 
-	// if child.chars is not completely contained in key, abort [e.g. trying to find "ab" in "abc"]
-	if child.chars != commonPrefix {
+	// if child.key is not completely contained in key, abort [e.g. trying to find "ab" in "abc"]
+	if child.key != commonPrefix {
 		return nil
 	}
 
-	// find the chars left of key in child
+	// find the keys left of key in child
 	return child.Find(key[prefixEnd:])
 }
 
@@ -117,15 +117,15 @@ func (r *Radix) Remove(key string) {
 	}
 
 	// if the correct end node is found...
-	if key == child.chars {
+	if key == child.key {
 		if len(child.children) == 0 {
 			// remove child from current node if child has no children on its own
 			delete(r.children, key[0])
 		} else if len(child.children) == 1 {
 			// since len(child.children) == 1, there is only one subchild; we have to use range to get the value, though, since we do not know the key
 			for _, subchild := range child.children {
-				// essentially moves the subchild up one level to replace the child we want to delete, while keeping the chars of child
-				child.chars = child.chars + subchild.chars
+				// essentially moves the subchild up one level to replace the child we want to delete, while keeping the keys of child
+				child.key = child.key + subchild.key
 				child.Value = subchild.Value
 				child.children = subchild.children
 			}
@@ -136,13 +136,13 @@ func (r *Radix) Remove(key string) {
 		return
 	}
 
-	// key != child.chars
+	// key != child.keys
 
-	// commonPrefix is now the longest common substring of key and child.chars [e.g. only "ab" from "abab" is contained in "abba"]
-	commonPrefix, prefixEnd := longestCommonPrefix(key, child.chars)
+	// commonPrefix is now the longest common substring of key and child.keys [e.g. only "ab" from "abab" is contained in "abba"]
+	commonPrefix, prefixEnd := longestCommonPrefix(key, child.key)
 
-	// if child.chars is not completely contained in key, abort [e.g. trying to delete "ab" from "abc"]
-	if child.chars != commonPrefix {
+	// if child.keys is not completely contained in key, abort [e.g. trying to delete "ab" from "abc"]
+	if child.key != commonPrefix {
 		return
 	}
 
