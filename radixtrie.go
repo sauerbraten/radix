@@ -33,13 +33,12 @@ func longestCommonPrefix(key, bar string) (string, int) {
 }
 
 // Insert inserts the value into the tree with the specified key.
-// If a key already exists it will be silently overwritten.
-func (node *Radix) Insert(key string, value interface{}) {
+func (r *Radix) Insert(key string, value interface{}) {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, insert a new one
-	child, ok := node.children[key[0]]
+	child, ok := r.children[key[0]]
 	if !ok {
-		node.children[key[0]] = &Radix{make(map[byte]*Radix), key, value}
+		r.children[key[0]] = &Radix{make(map[byte]*Radix), key, value}
 		return
 	}
 
@@ -64,7 +63,7 @@ func (node *Radix) Insert(key string, value interface{}) {
 	newChild := &Radix{make(map[byte]*Radix), commonPrefix, nil}
 
 	// replace child of current node with new child: map first letter of common prefix to new child
-	node.children[commonPrefix[0]] = newChild
+	r.children[commonPrefix[0]] = newChild
 
 	// shorten old chars to the non-shared part
 	child.chars = child.chars[prefixEnd:]
@@ -85,10 +84,10 @@ func (node *Radix) Insert(key string, value interface{}) {
 }
 
 // Find returns the value associated with key, or nil if there is no value set to key
-func (node *Radix) Find(key string) interface{} {
+func (r *Radix) Find(key string) interface{} {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return false
-	child, ok := node.children[key[0]]
+	child, ok := r.children[key[0]]
 	if !ok {
 		return nil
 	}
@@ -112,10 +111,10 @@ func (node *Radix) Find(key string) interface{} {
 
 
 // Delete unsets any value set to key. If no value exists for key, nothing happens.
-func (node *Radix) Delete(key string) {
+func (r *Radix) Delete(key string) {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return
-	child, ok := node.children[key[0]]
+	child, ok := r.children[key[0]]
 	if !ok {
 		return
 	}
@@ -124,7 +123,7 @@ func (node *Radix) Delete(key string) {
 	if key == child.chars {
 		if len(child.children) == 0 {
 			// remove child from current node if child has no children on its own
-			delete(node.children, key[0])
+			delete(r.children, key[0])
 		} else if len(child.children) == 1 {
 			// since len(child.children) == 1, there is only one subchild; we have to use range to get the value, though, since we do not know the key
 			for _, subchild := range child.children {
@@ -156,16 +155,16 @@ func (node *Radix) Delete(key string) {
 
 
 // Print prints a properly indented trie structure of the current trie state. It is not test safe though, due to the 'range node.children'.
-func (node *Radix) Print(level int) {
+func (r *Radix) Print(level int) {
 	x := level
 	for x > 0 {
 		fmt.Print("\t")
 		x--
 	}
-	fmt.Printf("'%v'  end: %v\n", node.chars, node.Value)
-	if len(node.children) != 0 {
+	fmt.Printf("'%v'  end: %v\n", r.chars, r.Value)
+	if len(r.children) != 0 {
 		// iterate over children, print each
-		for _, child := range node.children {
+		for _, child := range r.children {
 			child.Print(level + 1)
 		}
 	}

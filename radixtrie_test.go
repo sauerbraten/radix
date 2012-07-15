@@ -5,6 +5,13 @@ import (
 	"fmt"
 )
 
+func (r *Radix) print(level int) {
+
+}
+
+
+
+
 func TestRadixTrie(t *testing.T) {
 	trie := New()
 	if trie.value != nil {
