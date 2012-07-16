@@ -6,7 +6,7 @@ An implementation of a radix tree in Go. See
 > information coded in alphanumeric". Journal of the ACM, 15(4):514-534,        
 > October 1968    
 
-Or the [wikipedia article](http://en.wikipedia.org/wiki/Radix_tree) .
+Or the [wikipedia article](http://en.wikipedia.org/wiki/Radix_tree).
 
 ## Usage
 
