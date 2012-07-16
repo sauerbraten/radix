@@ -118,15 +118,6 @@ func (r *Radix) Insert(key string, value interface{}) *Radix {
 
 // Find returns the node associated with key. All childeren of this node share the same prefix
 func (r *Radix) Find(key string) *Radix {
-	r1 := r.find(key)
-	if r1 == nil {
-		return nil
-	}
-	return r1
-}
-
-// find returns the radix (sub)tree associated with key, or nil if there is nothing found
-func (r *Radix) find(key string) *Radix {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return false
 	child, ok := r.children[key[0]]
@@ -148,7 +139,7 @@ func (r *Radix) find(key string) *Radix {
 	}
 
 	// find the key left of key in child
-	return child.find(key[prefixEnd:])
+	return child.Find(key[prefixEnd:])
 }
 
 // Remove removes any value set to key. It returns the removed node or nil if the
