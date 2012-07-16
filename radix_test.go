@@ -66,8 +66,8 @@ func TestRemove(t *testing.T) {
 	r.Insert("test", "aa")
 	r.Insert("slow", "bb")
 
-	if r.Remove("slow").(string) != "bb" {
-		t.Log("should be bb")
+	if k := r.Remove("slow").Value; k != "bb" {
+		t.Log("should be bb", k)
 		t.Fail()
 	}
 
@@ -77,23 +77,30 @@ func TestRemove(t *testing.T) {
 	}
 }
 
-// prefix tester
-// prefix testering
-// prefix testeringandmore
-func ExampleTestFind(t *testing.T) {
+func ExampleFind() {
 	r := New()
 	r.Insert("tester", nil)
 	r.Insert("testering", nil)
 	r.Insert("te", nil)
 	r.Insert("testeringandmore", nil)
-	for _, s := range r.FindPrefix("tester") {
-		println("prefix", s)
-	}
+	f := r.Find("tester")
+	iter(f, f.Prefix("tester"))
+	// Output:
+	// prefix tester
+	// prefix testering
+	// prefix testeringandmore
 }
 
+/*
 func TestIter(t *testing.T) {
 	r := radixtree()
-	for r1 := range r.Iter() {
-		t.Log("k", r1.key, "v", r1.Value)
+	iter(r, "")
+}
+*/
+
+func iter(r *Radix, prefix string) {
+	fmt.Printf("prefix %s\n", prefix + r.Key())
+	for _, child := range r.Children() {
+		iter(child, prefix + r.Key())
 	}
 }
