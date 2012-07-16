@@ -45,8 +45,8 @@ func TestInsert(t *testing.T) {
 		t.Log("Tree does not validate")
 		t.Fail()
 	}
-	if r.Len() != 1 {
-		t.Log("Len should be 1")
+	if r.Len() != 0 {
+		t.Log("Len should be 0", r.Len())
 	}
 	r.Insert("test", nil)
 	r.Insert("slow", nil)
@@ -94,6 +94,6 @@ func ExampleTestFind(t *testing.T) {
 func TestIter(t *testing.T) {
 	r := radixtree()
 	for r1 := range r.Iter() {
-		println("k", r1.key, "v", r1.Value)
+		t.Log("k", r1.key, "v", r1.Value)
 	}
 }

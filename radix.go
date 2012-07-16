@@ -22,13 +22,6 @@ type Radix struct {
 	Value interface{}
 }
 
-func (r *Radix) Key() string {
-	if r != nil {
-		return r.key
-	}
-	return ""
-}
-
 func longestCommonPrefix(key, bar string) (string, int) {
 	if key == "" || bar == "" {
 		return "", 0
