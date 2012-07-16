@@ -36,7 +36,7 @@ type Radix struct {
 	Value interface{}
 }
 
-// Key returns the (partial) key under which this node is stored.
+// Key returns the (partial) key under which r is stored.
 func (r *Radix) Key() string {
 	if r != nil {
 		return r.key
@@ -44,7 +44,7 @@ func (r *Radix) Key() string {
 	return ""
 }
 
-// Children returns the children of this node r or nil if there are none.
+// Children returns the children of r or nil if there are none.
 func (r *Radix) Children() map[byte]*Radix {
 	if r != nil {
 		return r.children
@@ -67,7 +67,7 @@ func longestCommonPrefix(key, bar string) (string, int) {
 }
 
 // Insert inserts the value into the tree with the specified key. It returns the radix node
-// it just inserted
+// it just inserted.
 func (r *Radix) Insert(key string, value interface{}) *Radix {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, insert a new one
