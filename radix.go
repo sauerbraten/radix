@@ -11,12 +11,12 @@
 // keys under which nodes are stored:
 //
 //	func iter(r *Radix, prefix string) {
-//		// current key r.Key()
-//		// full key = prefix + r.Key()
+//		// Current key is r.Key()
+//		// The full key would be prefix + r.Key()
 //		for _, child := range r.Children() {
 //			iter(child, prefix + r.Key()
 //		}
-//      }
+//	}
 //
 //	f := r.Find("tester")		// Look for "tester"
 //	iter(f, f.Prefix("tester"))	// Get all the keys from "tester" down
