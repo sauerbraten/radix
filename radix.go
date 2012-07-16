@@ -23,10 +23,10 @@ type Radix struct {
 }
 
 func longestCommonPrefix(key, bar string) (string, int) {
-	x := 0
 	if key == "" || bar == "" {
 		return "", 0
 	}
+	x := 0
 	for key[x] == bar[x] {
 		x = x + 1
 		if x == len(key) || x == len(bar) {
