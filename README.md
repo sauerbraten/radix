@@ -26,7 +26,7 @@ look up strings, like so:
 
 	r := radix.New()
 	r.Insert("foo", true)
-	fmt.Printf("foo is contained: %v\n", r.Find("foo"))
+	fmt.Printf("foo is contained: %v\n", r.Find("foo").Value)
 
 ### Documentation
 
