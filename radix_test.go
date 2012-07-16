@@ -9,10 +9,22 @@ func printit(r *Radix, level int) {
 	for i := 0; i < level; i++ {
 		fmt.Print("\t")
 	}
-	fmt.Printf("'%v'  value: %v\n", r.key, r.value)
+	fmt.Printf("'%v'  value: %v\n", r.key, r.Value)
 	for _, child := range r.children {
 		printit(child, level+1)
 	}
+}
+
+func radixtree() *Radix {
+	r := New()
+	r.Insert("test", nil)
+	r.Insert("slow", nil)
+	r.Insert("water", nil)
+	r.Insert("tester", nil)
+	r.Insert("testering", nil)
+	r.Insert("rewater", nil)
+	r.Insert("waterrat", nil)
+	return r
 }
 
 // None, of the childeren must have a prefix incommon with r.key
@@ -54,7 +66,7 @@ func TestRemove(t *testing.T) {
 	r.Insert("test", "aa")
 	r.Insert("slow", "bb")
 
-	if r.Remove("slow").(string)!= "bb" {
+	if r.Remove("slow").(string) != "bb" {
 		t.Log("should be bb")
 		t.Fail()
 	}
@@ -79,3 +91,9 @@ func ExampleTestFind(t *testing.T) {
 	}
 }
 
+func TestIter(t *testing.T) {
+	r := radixtree()
+	for r1 := range r.Iter() {
+		println("k", r1.key, "v", r1.Value)
+	}
+}
