@@ -187,8 +187,8 @@ func (r *Radix) Remove(key string) *Radix {
 	return child.Remove(key[prefixEnd:])
 }
 
-// Do calls function f on each node in the tree. The behavior of Do is              
-// undefined if f changes *r.                                                       
+// Do calls function f on each node in the tree. f's parameter will be r.Value. The behavior of Do is              
+// undefined if f changes r.                                                       
 func (r *Radix) Do(f func(interface{})) {
 	if r != nil {
 		f(r.Value)
