@@ -91,12 +91,15 @@ func ExampleFind() {
 	// prefix testeringandmore
 }
 
-/*
-func TestIter(t *testing.T) {
+func BenchmarkFind(b *testing.B) {
+	b.StopTimer()
 	r := radixtree()
-	iter(r, "")
+	b.StartTimer()
+
+	for i := 0; i < b.N; i++ {
+		_ = r.Find("tester")
+	}
 }
-*/
 
 func iter(r *Radix, prefix string) {
 	fmt.Printf("prefix %s\n", prefix + r.Key())
