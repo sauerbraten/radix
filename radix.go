@@ -22,9 +22,9 @@
 //	iter(f, f.Prefix("tester"))	// Get all the keys from "tester" down
 package radix
 
-
 // Radix represents a radix tree.
 type Radix struct {
+	parent *Radix
 	// children maps the first letter of each child to the child itself, e.g. "a" -> "ab", "x" -> "xyz", "y" -> "yza", ...
 	children map[byte]*Radix
 	key      string
@@ -80,8 +80,8 @@ func (r *Radix) Insert(key string, value interface{}) *Radix {
 			newR, ok = r.children[key[len(r.key)]]
 		}
 	}
-	
-	// r is the deepest we can go now
+
+	// r now is the deepest we can go
 
 	if key == r.key {
 		r.value = value
@@ -91,14 +91,15 @@ func (r *Radix) Insert(key string, value interface{}) *Radix {
 	// commonPrefix is now the longest common substring of key and child.key [e.g. only "ab" from "abab" is contained in "abba"]
 	cP, prefixEnd := longestCommonPrefix(key, r.key)
 
+	// key: 'abcd', cP: 'abc'
 	if len(cP) < len(key) {
-		// key: 'abcd', r.key: 'abcx' -> cP: 'abc'
+		// key: 'abcd', cP: 'abc', r.key: 'abcx'
 		if len(cP) < len(r.key) {
-			// newOldR := &Radix{r.children, cP, r.value}
-			newOldR := &Radix{r.children, cP, r.value}
-			// newR: empty children, uncommmon part, value
-			newR := &Radix{make(map[byte]*Radix), r.key[prefixEnd:], value}
-			// r: [newOldR, newR], cP, nil
+			// newOldR := &Radix{r, r.children, cP, r.value}
+			newOldR := &Radix{r, r.children, cP, r.value}
+			// newR: r, empty children, uncommmon part, value
+			newR := &Radix{r, make(map[byte]*Radix), r.key[prefixEnd:], value}
+			// r: r.parent, [newOldR, newR], cP, nil
 			r.children = make(map[byte]*Radix)
 			r.children[newOldR.key[0]] = newOldR
 			r.children[newR.key[0]] = newR
@@ -106,20 +107,20 @@ func (r *Radix) Insert(key string, value interface{}) *Radix {
 			r.value = nil
 			// go into newly created r for return statement at the end
 			r = newR
-		// key: 'abcd', r.key: 'abc' -> cP: 'abc'
+			// key: 'abcd', cP: 'abc', r.key: 'abc'
 		} else { //len(cP) == len(r.key)
-			// newR: empty children, uncommmon part, value
-			newR := &Radix{make(map[byte]*Radix), key[prefixEnd:], value}
-			// r: r.children + newR
+			// newR: r, empty children, uncommmon part, value
+			newR := &Radix{r, make(map[byte]*Radix), key[prefixEnd:], value}
+			// r: r.parent, r.children + newR, r.key, r.value
 			r.children[newR.key[0]] = newR
 			// go into newly created r for return statement at the end
 			r = newR
 		}
-	// key: 'abc', r.key: 'abcd' -> cP: 'abc'
+		// key: 'abc', cP: 'abc', r.key: 'abcd'
 	} else { // len(cP) == len(key)
-		// newOldR := &Radix{r.children, uncommmon part, r.value}
-		newOldR := &Radix{r.children, r.key[prefixEnd:], r.value}
-		// r: [newOldR], key, value
+		// newOldR := &Radix{r, r.children, uncommmon part, r.value}
+		newOldR := &Radix{r, r.children, r.key[prefixEnd:], r.value}
+		// r: r.parent, [newOldR], key, value
 		r.children = make(map[byte]*Radix)
 		r.children[newOldR.key[0]] = newOldR
 		r.key = key
@@ -242,5 +243,5 @@ func (r *Radix) Len() int {
 
 // New returns an initialized radix tree.
 func New() *Radix {
-	return &Radix{make(map[byte]*Radix), "", nil}
+	return &Radix{nil, make(map[byte]*Radix), "", nil}
 }
