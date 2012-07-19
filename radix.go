@@ -95,6 +95,7 @@ func (r *Radix) Insert(key string, value interface{}) *Radix {
 	cP, prefixEnd := longestCommonPrefix(key, r.key)
 
 	if len(cP) < len(key) {
+		// key: 'abcd', r.key: 'abcx' -> cP: 'abc'
 		if len(cP) < len(r.key) {
 			// newOldR := &Radix{r.children, cP, r.value}
 			newOldR := &Radix{r.children, cP, r.value}
@@ -106,14 +107,18 @@ func (r *Radix) Insert(key string, value interface{}) *Radix {
 			r.children[newR.key[0]] = newR
 			r.key = cP
 			r.value = nil
-			return newR
+			// go into newly created r for return statement at the end
+			r = newR
+		// key: 'abcd', r.key: 'abc' -> cP: 'abc'
 		} else { //len(cP) == len(r.key)
 			// newR: empty children, uncommmon part, value
 			newR := &Radix{make(map[byte]*Radix), key[prefixEnd:], value}
 			// r: r.children + newR
 			r.children[newR.key[0]] = newR
-			return newR
+			// go into newly created r for return statement at the end
+			r = newR
 		}
+	// key: 'abc', r.key: 'abcd' -> cP: 'abc'
 	} else { // len(cP) == len(key)
 		// newOldR := &Radix{r.children, uncommmon part, r.value}
 		newOldR := &Radix{r.children, r.key[prefixEnd:], r.value}
@@ -122,11 +127,9 @@ func (r *Radix) Insert(key string, value interface{}) *Radix {
 		r.children[newOldR.key[0]] = newOldR
 		r.key = key
 		r.value = value
-		return r
 	}
 
-	// should never be reached
-	return nil
+	return r
 }
 
 // Find returns the node associated with key. All childeren of this node share the same prefix
