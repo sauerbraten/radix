@@ -16,18 +16,6 @@ func printit(r *Radix, level int) {
 	}
 }
 
-func radixtree() *Radix {
-	r := New()
-	r.Insert("test", nil)
-	r.Insert("slow", nil)
-	r.Insert("water", nil)
-	r.Insert("tester", nil)
-	r.Insert("testering", nil)
-	r.Insert("rewater", nil)
-	r.Insert("waterrat", nil)
-	return r
-}
-
 // None of the children must have a prefix in common with r.key
 func validate(r *Radix) bool {
 	for _, child := range r.children {
@@ -78,33 +66,28 @@ func TestRemove(t *testing.T) {
 	}
 }
 
-func ExampleFind() {
+func ExampleSubTree() {
 	r := New()
 	r.Insert("tester", nil)
 	r.Insert("testering", nil)
 	r.Insert("te", nil)
 	r.Insert("testeringandmore", nil)
-	f := r.Find("tester")
-	iter(f, f.Prefix("tester"))
+	f := r.SubTree("tester")
+	fmt.Printf("'%v'  value: %v\n", f.key, f.value)
 	// Output:
-	// prefix tester
-	// prefix testering
-	// prefix testeringandmore
+	// 'ster'  value: <nil>
 }
 
-func BenchmarkFind(b *testing.B) {
+func BenchmarkSubTree(b *testing.B) {
 	b.StopTimer()
-	r := radixtree()
+	r := New()
+	r.Insert("tester", nil)
+	r.Insert("testering", nil)
+	r.Insert("te", nil)
+	r.Insert("testeringandmore", nil)
 	b.StartTimer()
 
 	for i := 0; i < b.N; i++ {
-		_ = r.Find("tester")
-	}
-}
-
-func iter(r *Radix, prefix string) {
-	fmt.Printf("prefix %s\n", prefix+r.Key())
-	for _, child := range r.Children() {
-		iter(child, prefix+r.Key())
+		_ = r.SubTree("tester")
 	}
 }

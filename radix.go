@@ -22,9 +22,6 @@
 //	iter(f, f.Prefix("tester"))	// Get all the keys from "tester" down
 package radix
 
-import (
-	"strings"
-)
 
 // Radix represents a radix tree.
 type Radix struct {
@@ -132,8 +129,8 @@ func (r *Radix) Insert(key string, value interface{}) *Radix {
 	return r
 }
 
-// Find returns the node associated with key. All childeren of this node share the same prefix
-func (r *Radix) Find(key string) *Radix {
+// SubTree returns the node wich key points to or nil if there is no such key.
+func (r *Radix) SubTree(key string) *Radix {
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return false
 	child, ok := r.children[key[0]]
@@ -161,6 +158,16 @@ func (r *Radix) Find(key string) *Radix {
 	}
 
 	return child
+}
+
+// Get returns the value associated with key or nil if there is no such key.
+func (r *Radix) Get(key string) interface{} {
+	r = r.SubTree(key)
+	if r != nil {
+		return r.value
+	}
+
+	return nil
 }
 
 // Remove removes any value set to key. It returns the removed node or nil if the
@@ -217,17 +224,6 @@ func (r *Radix) Do(f func(interface{})) {
 			child.Do(f)
 		}
 	}
-}
-
-// Prefix returns the string that is the result of "subtracting" r.Key from s. 
-// If s equals "tester" and the key were r is stored is "ster", Prefix returns
-// "te".
-func (r *Radix) Prefix(s string) string {
-	l := strings.LastIndex(s, r.Key())
-	if l == -1 {
-		return ""
-	}
-	return s[:l]
 }
 
 // Len computes the number of nodes in the radix tree r.
