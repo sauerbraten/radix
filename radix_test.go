@@ -9,7 +9,8 @@ func printit(r *Radix, level int) {
 	for i := 0; i < level; i++ {
 		fmt.Print("\t")
 	}
-	fmt.Printf("'%v'  value: %v\n", r.key, r.Value)
+	fmt.Printf("'%v'  value: %v\n", r.key, r.value)
+	println()
 	for _, child := range r.children {
 		printit(child, level+1)
 	}
@@ -27,7 +28,7 @@ func radixtree() *Radix {
 	return r
 }
 
-// None, of the childeren must have a prefix incommon with r.key
+// None of the children must have a prefix in common with r.key
 func validate(r *Radix) bool {
 	for _, child := range r.children {
 		_, i := longestCommonPrefix(r.key, child.key)
@@ -66,7 +67,7 @@ func TestRemove(t *testing.T) {
 	r.Insert("test", "aa")
 	r.Insert("slow", "bb")
 
-	if k := r.Remove("slow").Value; k != "bb" {
+	if k := r.Remove("slow").value; k != "bb" {
 		t.Log("should be bb", k)
 		t.Fail()
 	}
@@ -102,8 +103,8 @@ func BenchmarkFind(b *testing.B) {
 }
 
 func iter(r *Radix, prefix string) {
-	fmt.Printf("prefix %s\n", prefix + r.Key())
+	fmt.Printf("prefix %s\n", prefix+r.Key())
 	for _, child := range r.Children() {
-		iter(child, prefix + r.Key())
+		iter(child, prefix+r.Key())
 	}
 }
