@@ -28,12 +28,12 @@ import (
 
 // Radix represents a radix tree.
 type Radix struct {
+	// The contents of the radix node.
+	Value interface{}
+	
 	// children maps the first letter of each child to the child itself, e.g. "a" -> "ab", "x" -> "xyz", "y" -> "yza", ...
 	children map[byte]*Radix
 	key      string
-
-	// The contents of the radix node.
-	Value interface{}
 }
 
 // Key returns the (partial) key under which r is stored.
