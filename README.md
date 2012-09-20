@@ -20,9 +20,17 @@ Import the package:
 		"github.com/sauerbraten/radix"
 	)
 
-You can use the tree as a key-value structure, where every node's can have its
-own value (as shown in the example below), or you can of course just use it to
-look up strings, like so:
+You can use the tree as a key-value structure, where every node's value can have 
+a different type:
+
+	r := radix.New()
+	r.Insert("one", "1")
+	r.Insert("twoAndThree", []int{2, 3})
+	fmt.Printf("%v, %v, %v\n", r.Find("one").Value, r.Find("twoAndThree").Value.([]int)[0], r.Find("twoAndThree").Value.([]int)[1])
+	
+	// prints 1, 2, 3
+
+Or you can of course just use it to look up strings, like so:
 
 	r := radix.New()
 	r.Insert("foo", true)
