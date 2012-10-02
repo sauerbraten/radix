@@ -9,25 +9,14 @@ func printit(r *Radix, level int) {
 	for i := 0; i < level; i++ {
 		fmt.Print("\t")
 	}
-	fmt.Printf("'%v'  value: %v\n", r.key, r.Value)
+	fmt.Printf("'%v'  value: %v\n", r.key, r.value)
+	println()
 	for _, child := range r.children {
 		printit(child, level+1)
 	}
 }
 
-func radixtree() *Radix {
-	r := New()
-	r.Insert("test", nil)
-	r.Insert("slow", nil)
-	r.Insert("water", nil)
-	r.Insert("tester", nil)
-	r.Insert("testering", nil)
-	r.Insert("rewater", nil)
-	r.Insert("waterrat", nil)
-	return r
-}
-
-// None, of the childeren must have a prefix incommon with r.key
+// None of the children must have a prefix in common with r.key
 func validate(r *Radix) bool {
 	for _, child := range r.children {
 		_, i := longestCommonPrefix(r.key, child.key)
@@ -48,13 +37,13 @@ func TestInsert(t *testing.T) {
 	if r.Len() != 0 {
 		t.Log("Len should be 0", r.Len())
 	}
-	r.Insert("test", nil)
-	r.Insert("slow", nil)
-	r.Insert("water", nil)
-	r.Insert("tester", nil)
-	r.Insert("testering", nil)
-	r.Insert("rewater", nil)
-	r.Insert("waterrat", nil)
+	r.Set("test", nil)
+	r.Set("slow", nil)
+	r.Set("water", nil)
+	r.Set("tester", nil)
+	r.Set("testering", nil)
+	r.Set("rewater", nil)
+	r.Set("waterrat", nil)
 	if !validate(r) {
 		t.Log("Tree does not validate")
 		t.Fail()
@@ -63,10 +52,10 @@ func TestInsert(t *testing.T) {
 
 func TestRemove(t *testing.T) {
 	r := New()
-	r.Insert("test", "aa")
-	r.Insert("slow", "bb")
+	r.Set("test", "aa")
+	r.Set("slow", "bb")
 
-	if k := r.Remove("slow").Value; k != "bb" {
+	if k := r.Remove("slow").value; k != "bb" {
 		t.Log("should be bb", k)
 		t.Fail()
 	}
@@ -77,33 +66,28 @@ func TestRemove(t *testing.T) {
 	}
 }
 
-func ExampleFind() {
+func ExampleSubTree() {
 	r := New()
-	r.Insert("tester", nil)
-	r.Insert("testering", nil)
-	r.Insert("te", nil)
-	r.Insert("testeringandmore", nil)
-	f := r.Find("tester")
-	iter(f, f.Prefix("tester"))
+	r.Set("tester", nil)
+	r.Set("testering", nil)
+	r.Set("te", nil)
+	r.Set("testeringandmore", nil)
+	f := r.SubTree("tester")
+	fmt.Printf("'%v'  value: %v\n", f.key, f.value)
 	// Output:
-	// prefix tester
-	// prefix testering
-	// prefix testeringandmore
+	// 'ster'  value: <nil>
 }
 
-func BenchmarkFind(b *testing.B) {
+func BenchmarkSubTree(b *testing.B) {
 	b.StopTimer()
-	r := radixtree()
+	r := New()
+	r.Set("tester", nil)
+	r.Set("testering", nil)
+	r.Set("te", nil)
+	r.Set("testeringandmore", nil)
 	b.StartTimer()
 
 	for i := 0; i < b.N; i++ {
-		_ = r.Find("tester")
-	}
-}
-
-func iter(r *Radix, prefix string) {
-	fmt.Printf("prefix %s\n", prefix + r.Key())
-	for _, child := range r.Children() {
-		iter(child, prefix + r.Key())
+		_ = r.SubTree("tester")
 	}
 }
