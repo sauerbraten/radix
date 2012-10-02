@@ -6,22 +6,8 @@
 //    October 1968                                                                                  
 //
 // Also see http://en.wikipedia.org/wiki/Radix_tree for more information.
-//
-// Basic use pattern for iterating over a radix tree and retrieving the full
-// keys under which nodes are stored:
-//
-//	func iter(r *Radix, prefix string) {
-//		// Current key is r.Key()
-//		// The full key would be prefix + r.Key()
-//		for _, child := range r.Children() {
-//			iter(child, prefix + r.Key()
-//		}
-//	}
-//
-//	f := r.Find("tester")		// Look for "tester"
-//	iter(f, f.Prefix("tester"))	// Get all the keys from "tester" down
-package radix
 
+package radix
 
 // Radix represents a radix tree.
 type Radix struct {
@@ -59,7 +45,6 @@ func (r *Radix) Key() string {
 func New() *Radix {
 	return &Radix{nil, make(map[byte]*Radix), "", nil}
 }
-
 
 // helper function, used in Set() and SubTree()
 func longestCommonPrefix(key, bar string) (string, int) {
