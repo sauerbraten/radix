@@ -24,17 +24,17 @@ You can use the tree as a key-value structure, where every node's value can have
 a different type:
 
 	r := radix.New()
-	r.Insert("one", "1")
-	r.Insert("twoAndThree", []int{2, 3})
-	fmt.Printf("%v, %v, %v\n", r.Find("one").Value, r.Find("twoAndThree").Value.([]int)[0], r.Find("twoAndThree").Value.([]int)[1])
+	r.Set("one", "1")
+	r.Set("twoAndThree", []int{2, 3})
+	fmt.Printf("%v, %v, %v\n", r.Get("one"), r.Get("twoAndThree").([]int)[0], r.Get("twoAndThree").([]int)[1])
 	
 	// prints 1, 2, 3
 
 Or you can of course just use it to look up strings, like so:
 
 	r := radix.New()
-	r.Insert("foo", true)
-	fmt.Printf("foo is contained: %v\n", r.Find("foo").Value)
+	r.Set("foo", true)
+	fmt.Printf("foo is contained: %v\n", r.Get("foo"))
 
 ### Documentation
 
