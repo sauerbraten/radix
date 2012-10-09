@@ -36,7 +36,7 @@ Or you can of course just use it to look up strings, like so:
 	r.Set("foo", true)
 	fmt.Printf("foo is contained: %v\n", r.Get("foo"))
 
-### Documentation
+## Documentation
 
 For full package documentation, visit http://go.pkgdoc.org/github.com/sauerbraten/radix.
 
