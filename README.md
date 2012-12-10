@@ -1,5 +1,9 @@
 # Radix
 
+<a href="http://goci.me/project/github.com/sauerbraten/radix">
+	<img src="http://goci.me/project/image/github.com/sauerbraten/radix" />
+</a>
+
 An implementation of a radix tree in Go. See
 
 > Donald R. Morrison. "PATRICIA -- practical algorithm to retrieve              
