@@ -48,9 +48,8 @@ For full package documentation, visit http://go.pkgdoc.org/github.com/sauerbrate
 
 This code is licensed under a BSD License:
 
-This code is licensed under a BSD License:
-
 	Copyright (c) 2012 Alexander Willing and Miek Gieben. All rights reserved.
+	
 		* Redistributions of source code must retain the above copyright
 		  notice, this list of conditions and the following disclaimer.
 		* Redistributions in binary form must reproduce the above
