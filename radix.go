@@ -6,7 +6,6 @@
 //    October 1968                                                                                  
 //
 // Also see http://en.wikipedia.org/wiki/Radix_tree for more information.
-
 package radix
 
 // Radix represents a radix tree.
