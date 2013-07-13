@@ -66,6 +66,41 @@ func TestRemove(t *testing.T) {
 	}
 }
 
+func TestGetAllWithPrefix(t *testing.T) {
+	r := New()
+	r.Set("rom", "rom")
+	r.Set("romum", "romum")
+	r.Set("romulus", "romulus")
+
+	roms := r.GetAllWithPrefix("rom")
+
+	if len(roms) != 3 {
+		t.Error("not 3 results for rom")
+		t.Fail()
+	}
+
+	romus := r.GetAllWithPrefix("romu")
+
+	if len(romus) != 2 {
+		t.Error("not 2 results for romu")
+		t.Fail()
+	}
+
+	c := 0
+	for _, s := range []string{"romum", "romulus"} {
+		for _, romu := range romus {
+			if romu.(string) == s {
+				c++
+			}
+		}
+	}
+
+	if c != 2 {
+		t.Error("romum or romulus not contained in results for romu")
+		t.Fail()
+	}
+}
+
 func ExampleSubTree() {
 	r := New()
 	r.Set("tester", nil)

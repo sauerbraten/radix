@@ -1,9 +1,9 @@
-// Package radix implements a radix tree.                                                           
-//                                                                                                  
-// A radix tree is defined in:                                                                      
-//    Donald R. Morrison. "PATRICIA -- practical algorithm to retrieve                              
-//    information coded in alphanumeric". Journal of the ACM, 15(4):514-534,                        
-//    October 1968                                                                                  
+// Package radix implements a radix tree.
+//
+// A radix tree is defined in:
+//    Donald R. Morrison. "PATRICIA -- practical algorithm to retrieve
+//    information coded in alphanumeric". Journal of the ACM, 15(4):514-534,
+//    October 1968
 //
 // Also see http://en.wikipedia.org/wiki/Radix_tree for more information.
 package radix
@@ -162,6 +162,45 @@ func (r *Radix) SubTree(key string) *Radix {
 	return r
 }
 
+// SubTreeWithPefix returns the node wich key starts with prefix or nil if there is no such node.
+func (r *Radix) SubTreeWithPrefix(prefix string) *Radix {
+	if len(prefix) < 1 {
+		return nil
+	}
+
+	// look up the child starting with the same letter as key
+	// if there is no child with the same starting letter, return false
+	r, ok := r.children[prefix[0]]
+	if !ok {
+		return nil
+	}
+
+	posInPrefix := 0
+
+	for posInPrefix != len(prefix) {
+		// commonPrefix is now the longest common substring of key and child.key [e.g. only "ab" from "abab" is contained in "abba"]
+		commonPrefix, prefixEnd := longestCommonPrefix(prefix[posInPrefix:], r.key)
+		posInPrefix += prefixEnd
+
+		if posInPrefix > len(prefix)-1 {
+			// if prefix is entirely contained in r.key, return r
+			if len(r.key) >= len(commonPrefix) {
+				return r
+			}
+
+			return nil
+		}
+
+		// if there is no child starting with the leftover key, abort
+		r, ok = r.children[prefix[posInPrefix]]
+		if !ok {
+			return nil
+		}
+	}
+
+	return r
+}
+
 // Get returns the value associated with key or nil if there is no such key.
 func (r *Radix) Get(key string) interface{} {
 	r = r.SubTree(key)
@@ -170,6 +209,29 @@ func (r *Radix) Get(key string) interface{} {
 	}
 
 	return nil
+}
+
+func (r *Radix) getChildrenValues() (values []interface{}) {
+	for _, c := range r.Children() {
+		values = append(values, c.getChildrenValues()...)
+	}
+
+	if r.value != nil {
+		values = append(values, r.value)
+	}
+	return
+}
+
+// Returns all values associated with keys that start with prefix as a slice. The slice is empty if there is no key with that prefix.
+func (r *Radix) GetAllWithPrefix(prefix string) (values []interface{}) {
+	r = r.SubTreeWithPrefix(prefix)
+	if r == nil {
+		return
+	}
+
+	values = r.getChildrenValues()
+
+	return
 }
 
 // Remove removes any value set to key. It returns the removed node or nil if the
