@@ -44,6 +44,8 @@ func TestInsert(t *testing.T) {
 	r.Set("testering", nil)
 	r.Set("rewater", nil)
 	r.Set("waterrat", nil)
+	r.Set("østern", nil)
+	r.Set("øpen", nil)
 	if !validate(r) {
 		t.Log("Tree does not validate")
 		t.Fail()
@@ -68,26 +70,26 @@ func TestRemove(t *testing.T) {
 
 func TestGetAllWithPrefix(t *testing.T) {
 	r := New()
-	r.Set("rom", "rom")
-	r.Set("romum", "romum")
-	r.Set("romulus", "romulus")
+	r.Set("ðom", "ðom")
+	r.Set("ðomum", "ðomum")
+	r.Set("ðomulus", "ðomulus")
 
-	roms := r.GetAllWithPrefix("rom")
+	roms := r.GetAllWithPrefix("ðom")
 
 	if len(roms) != 3 {
-		t.Error("not 3 results for rom")
+		t.Error("not 3 results for ðom")
 		t.Fail()
 	}
 
-	romus := r.GetAllWithPrefix("romu")
+	romus := r.GetAllWithPrefix("ðomu")
 
 	if len(romus) != 2 {
-		t.Error("not 2 results for romu")
+		t.Error("not 2 results for ðomu")
 		t.Fail()
 	}
 
 	c := 0
-	for _, s := range []string{"romum", "romulus"} {
+	for _, s := range []string{"ðomum", "ðomulus"} {
 		for _, romu := range romus {
 			if romu.(string) == s {
 				c++
@@ -96,7 +98,7 @@ func TestGetAllWithPrefix(t *testing.T) {
 	}
 
 	if c != 2 {
-		t.Error("romum or romulus not contained in results for romu")
+		t.Error("ðomum or ðomulus not contained in results for ðomu")
 		t.Fail()
 	}
 }

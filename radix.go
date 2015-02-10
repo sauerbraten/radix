@@ -1,4 +1,4 @@
-// Package radix implements a radix tree.
+// Package radix implements a radix tree. It uses UTF-8 strings as keys.
 //
 // A radix tree is defined in:
 //    Donald R. Morrison. "PATRICIA -- practical algorithm to retrieve
@@ -8,11 +8,13 @@
 // Also see http://en.wikipedia.org/wiki/Radix_tree for more information.
 package radix
 
+import "unicode/utf8"
+
 // Radix represents a radix tree.
 type Radix struct {
 	parent *Radix
-	// children maps the first letter of each child to the child itself, e.g. "a" -> "ab", "x" -> "xyz", "y" -> "yza", ...
-	children map[byte]*Radix
+	// children maps the first rune of the key of each child to the child itself, e.g. "a" -> "ab", "x" -> "xyz", "y" -> "yza", ...
+	children map[rune]*Radix
 	key      string
 
 	// The contents of the radix node.
@@ -25,7 +27,7 @@ func (r *Radix) Value() interface{} {
 }
 
 // Children returns the children of r or nil if there are none.
-func (r *Radix) Children() map[byte]*Radix {
+func (r *Radix) Children() map[rune]*Radix {
 	if r != nil {
 		return r.children
 	}
@@ -42,31 +44,52 @@ func (r *Radix) Key() string {
 
 // New returns an initialized radix tree.
 func New() *Radix {
-	return &Radix{nil, make(map[byte]*Radix), "", nil}
+	return &Radix{
+		parent:   nil,
+		children: make(map[rune]*Radix),
+		key:      "",
+		value:    nil,
+	}
 }
 
 // helper function, used in Set() and SubTree()
-func longestCommonPrefix(key, bar string) (string, int) {
-	if key == "" || bar == "" {
-		return "", 0
+// Returns the longest prefix the two strings have in common by comparing
+// runes, as well as the length of that prefix in bytes. Assumes both strings
+// have been checked for being valid UTF-8.
+func longestCommonPrefix(a, b string) (prefix string, pl int) {
+	if a == "" || b == "" {
+		return
 	}
-	x := 0
-	for key[x] == bar[x] {
-		x = x + 1
-		if x == len(key) || x == len(bar) {
+
+	for pl < len(a) && pl < len(b) {
+		runeA, runeLength := utf8.DecodeRuneInString(a[pl:])
+		runeB, _ := utf8.DecodeRuneInString(b[pl:])
+		if runeA == runeB {
+			pl += runeLength
+		} else {
 			break
 		}
 	}
-	return key[:x], x // == bar[:x]
+
+	prefix = a[:pl] // a[:pl] == b[:pl]
+
+	return
 }
 
-// Set inserts the value into the tree with the specified key. It returns the radix node
-// it just inserted.
+// Set inserts the value into the tree with the specified key. It returns the
+// radix node it just inserted. It returns nil if the key is not valid UTF-8.
 func (r *Radix) Set(key string, value interface{}) *Radix {
+	if !utf8.ValidString(key) {
+		return nil
+	}
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, insert a new one
 
-	newR, ok := r.children[key[0]]
+	newR, ok := r, true
+	if len(key) > 0 {
+		firstRune, _ := utf8.DecodeRuneInString(key)
+		newR, ok = r.children[firstRune]
+	}
 
 	for ok {
 		key = key[len(r.key):]
@@ -74,7 +97,8 @@ func (r *Radix) Set(key string, value interface{}) *Radix {
 		if len(key) <= len(r.key) {
 			break
 		} else {
-			newR, ok = r.children[key[len(r.key)]]
+			firstRune, _ := utf8.DecodeRuneInString(key[len(r.key):])
+			newR, ok = r.children[firstRune]
 		}
 	}
 
@@ -86,40 +110,65 @@ func (r *Radix) Set(key string, value interface{}) *Radix {
 	}
 
 	// commonPrefix is now the longest common substring of key and child.key [e.g. only "ab" from "abab" is contained in "abba"]
-	cP, prefixEnd := longestCommonPrefix(key, r.key)
+	commonPrefix, prefixLength := longestCommonPrefix(key, r.key)
 
-	// key: 'abcd', cP: 'abc'
-	if len(cP) < len(key) {
-		// key: 'abcd', cP: 'abc', r.key: 'abcx'
-		if len(cP) < len(r.key) {
-			// newOldR := &Radix{r, r.children, cP, r.Value}
-			newOldR := &Radix{r, r.children, r.key[prefixEnd:], r.value}
+	// key: 'abcd', commonPrefix: 'abc'
+	if len(commonPrefix) < len(key) {
+		// key: 'abcd', commonPrefix: 'abc', r.key: 'abcx'
+		if len(commonPrefix) < len(r.key) {
+			// newOldR := &Radix{r, r.children, commonPrefix, r.Value}
+			newOldR := &Radix{
+				parent:   r,
+				children: r.children,
+				key:      r.key[prefixLength:],
+				value:    r.value,
+			}
+
 			// newR: r, empty children, uncommmon part, value
-			newR := &Radix{r, make(map[byte]*Radix), key[prefixEnd:], value}
-			// r: r.parent, [newOldR, newR], cP, nil
-			r.children = make(map[byte]*Radix)
-			r.children[newOldR.key[0]] = newOldR
-			r.children[newR.key[0]] = newR
-			r.key = cP
+			newR := &Radix{
+				parent:   r,
+				children: make(map[rune]*Radix),
+				key:      key[prefixLength:],
+				value:    value}
+
+			// r: r.parent, [newOldR, newR], commonPrefix, nil
+			newOldRFirstRune, _ := utf8.DecodeRuneInString(newOldR.key)
+			newRFirstRune, _ := utf8.DecodeRuneInString(newR.key)
+			r.children = map[rune]*Radix{
+				newOldRFirstRune: newOldR,
+				newRFirstRune:    newR,
+			}
+			r.key = commonPrefix
 			r.value = nil
+
 			// go into newly created r for return statement at the end
 			r = newR
-			// key: 'abcd', cP: 'abc', r.key: 'abc'
-		} else { //len(cP) == len(r.key)
+
+		} else { // len(commonPrefix) == len(r.key) → key: 'abcd', commonPrefix: 'abc', r.key: 'abc'
 			// newR: r, empty children, uncommmon part, value
-			newR := &Radix{r, make(map[byte]*Radix), key[prefixEnd:], value}
+			newR := &Radix{
+				parent:   r,
+				children: map[rune]*Radix{},
+				key:      key[prefixLength:],
+				value:    value,
+			}
+
 			// r: r.parent, r.children + newR, r.key, r.Value
-			r.children[newR.key[0]] = newR
+			newRFirstRune, _ := utf8.DecodeRuneInString(newR.key)
+			r.children[newRFirstRune] = newR
+
 			// go into newly created r for return statement at the end
 			r = newR
 		}
-		// key: 'abc', cP: 'abc', r.key: 'abcd'
-	} else { // len(cP) == len(key)
+		// key: 'abc', commonPrefix: 'abc', r.key: 'abcd'
+	} else { // len(commonPrefix) == len(key)
 		// newOldR := &Radix{r, r.children, uncommmon part, r.Value}
-		newOldR := &Radix{r, r.children, r.key[prefixEnd:], r.value}
+		newOldR := &Radix{r, r.children, r.key[prefixLength:], r.value}
 		// r: r.parent, [newOldR], key, value
-		r.children = make(map[byte]*Radix)
-		r.children[newOldR.key[0]] = newOldR
+		newOldRFirstRune, _ := utf8.DecodeRuneInString(newOldR.key)
+		r.children = map[rune]*Radix{
+			newOldRFirstRune: newOldR,
+		}
 		r.key = key
 		r.value = value
 	}
@@ -135,7 +184,8 @@ func (r *Radix) SubTree(key string) *Radix {
 
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return false
-	r, ok := r.children[key[0]]
+	firstRune, _ := utf8.DecodeRuneInString(key)
+	r, ok := r.children[firstRune]
 	if !ok {
 		return nil
 	}
@@ -144,8 +194,8 @@ func (r *Radix) SubTree(key string) *Radix {
 
 	for r.key != key[posInKey:] {
 		// commonPrefix is now the longest common substring of key and child.key [e.g. only "ab" from "abab" is contained in "abba"]
-		commonPrefix, prefixEnd := longestCommonPrefix(key[posInKey:], r.key)
-		posInKey = posInKey + prefixEnd
+		commonPrefix, prefixLength := longestCommonPrefix(key[posInKey:], r.key)
+		posInKey = posInKey + prefixLength
 
 		// if child.key is not completely contained in key, abort [e.g. trying to find "ab" in "abc"]
 		if r.key != commonPrefix {
@@ -153,7 +203,8 @@ func (r *Radix) SubTree(key string) *Radix {
 		}
 
 		// if there is no child starting with the leftover key, abort
-		r, ok = r.children[key[posInKey]]
+		firstRune, _ := utf8.DecodeRuneInString(key[posInKey:])
+		r, ok = r.children[firstRune]
 		if !ok {
 			return nil
 		}
@@ -170,7 +221,8 @@ func (r *Radix) SubTreeWithPrefix(prefix string) *Radix {
 
 	// look up the child starting with the same letter as key
 	// if there is no child with the same starting letter, return false
-	r, ok := r.children[prefix[0]]
+	firstRune, _ := utf8.DecodeRuneInString(prefix)
+	r, ok := r.children[firstRune]
 	if !ok {
 		return nil
 	}
@@ -178,9 +230,9 @@ func (r *Radix) SubTreeWithPrefix(prefix string) *Radix {
 	posInPrefix := 0
 
 	for posInPrefix != len(prefix) {
-		// commonPrefix is now the longest common substring of key and child.key [e.g. only "ab" from "abab" is contained in "abba"]
-		commonPrefix, prefixEnd := longestCommonPrefix(prefix[posInPrefix:], r.key)
-		posInPrefix += prefixEnd
+		// commonPrefix is now the longest common substring of key and child.key [e.g. only "ab" from "abab" is contained in "abcd"]
+		commonPrefix, prefixLength := longestCommonPrefix(prefix[posInPrefix:], r.key)
+		posInPrefix += prefixLength
 
 		if posInPrefix > len(prefix)-1 {
 			// if prefix is entirely contained in r.key, return r
@@ -192,7 +244,8 @@ func (r *Radix) SubTreeWithPrefix(prefix string) *Radix {
 		}
 
 		// if there is no child starting with the leftover key, abort
-		r, ok = r.children[prefix[posInPrefix]]
+		firstRune, _ := utf8.DecodeRuneInString(prefix[posInPrefix:])
+		r, ok = r.children[firstRune]
 		if !ok {
 			return nil
 		}
@@ -246,7 +299,8 @@ func (r *Radix) Remove(key string) *Radix {
 	switch len(r.children) {
 	case 0:
 		// remove child from current node if child has no children on its own
-		delete(r.parent.children, r.key[0])
+		firstRune, _ := utf8.DecodeRuneInString(r.key)
+		delete(r.parent.children, firstRune)
 	case 1:
 		// since len(r.parent.children) == 1, there is only one subchild; we have to use range to get the value, though, since we do not know the key
 		for _, child := range r.children {
